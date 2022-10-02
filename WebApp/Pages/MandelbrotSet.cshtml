@@ -1,0 +1,43 @@
+﻿@page
+@model MandelbrotSet
+@{
+    ViewData["Title"] = "CG | Mandelbrot's Set";
+}
+
+<div class="row">
+    <div class="text-center col-sm-6">
+        <h4>Mandelbrot's Set:</h4>
+        <img height="400" width="400"
+             src="@($"data:image/png;base64,{Convert.ToBase64String(Model.ViewModel.ImageBytes)}")"
+             alt="Mandelbrot's Set Fractal"/>
+    </div>
+    <div class="col-sm-6 mt-5">
+        <form method="post">
+            <div class="row">
+                <div class="col-sm-4">
+                    <p>Enter width:</p>
+                </div>
+                <div class="col">
+                    <input asp-for="ViewModel.Width"/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <p>Enter height:</p>
+                </div>
+                <div class="col">
+                    <input asp-for="ViewModel.Height"/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <p>Enter iteration count:</p>
+                </div>
+                <div class="col">
+                    <input asp-for="ViewModel.MaxIterations"/>
+                </div>
+            </div>
+            <button class="btn btn-outline-primary mt-2">Generate</button>
+        </form>
+    </div>
+</div>
