@@ -1,0 +1,52 @@
+﻿@page
+@model WebApp.Pages.Welcome
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <title>Welcome | CG</title>
+    <link rel="stylesheet" href="css/welcome.css"/>
+    <link rel="stylesheet" href="css/general.css"/>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+</head>
+<body>
+<div class="container-fluid h-100">
+    <div class="row h-100">
+        <div class="col">
+            <a href="#" class="btn button-secondary">About</a>
+        </div>
+        <div class="col-sm-7">
+            <div class="row h-100 align-content-center">
+                <div class="col text-center">
+                    <img id="welcome-logo" src="images/logo.png" alt="logo"/>
+                </div>
+                <div class="row">
+                    <div class="col text-end">
+                        <a href="#" class="btn button-primary">Get Started</a>
+                    </div>
+                    <div class="col text-start">
+                        <a href="#" class="btn button-secondary ml-2">Cookie Statement</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="row">
+                <div class="col-sm-7 text-end">
+                    <a href="#" class="btn button-secondary">Source Code</a>
+                </div>
+                <div class="col-sm-4 text-end">
+                    <a href="#" class="btn button-secondary ml-2">Contributors</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<footer class="footer text-white">&copy; computergraphics.com 2022</footer>
+</body>
+</html>
