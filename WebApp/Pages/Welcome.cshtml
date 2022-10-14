@@ -6,14 +6,14 @@
 }
 
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <title>Welcome | CG</title>
-    <link rel="stylesheet" href="css/welcome.css"/>
-    <link rel="stylesheet" href="css/general.css"/>
+    <link rel="stylesheet" href="css/welcome.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="css/general.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
 </head>
+
 <body>
 <div class="container-fluid h-100">
     <div class="row h-100">
@@ -23,11 +23,11 @@
         <div class="col-sm-7">
             <div class="row h-100 align-content-center">
                 <div class="col text-center">
-                    <img id="welcome-logo" src="images/logo.png" alt="logo"/>
+                    <img id="welcome-logo" src="images/logo.png" alt="Logo"/>
                 </div>
                 <div class="row">
                     <div class="col text-end">
-                        <a href="#" class="btn button-primary">Get Started</a>
+                        <a asp-page="Home" class="btn button-primary">Get Started</a>
                     </div>
                     <div class="col text-start">
                         <a href="#" class="btn button-secondary ml-2">Cookie Statement</a>
@@ -47,6 +47,7 @@
         </div>
     </div>
 </div>
+
 <footer class="footer text-white">&copy; computergraphics.com 2022</footer>
 </body>
 </html>

@@ -3,52 +3,36 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@ViewData["Title"] - WebApp</title>
+    <title>@ViewData["Title"] | CG</title>
+    <link rel="stylesheet" href="css/layout.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="css/general.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/WebApp.styles.css" asp-append-version="true"/>
 </head>
+
 <body>
-<header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-        <div class="container">
-            <a class="navbar-brand" asp-area="" asp-page="/Index">WebApp</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-page="/MandelbrotSet">Mandelbrot's Set</a>
-                    </li>
-                </ul>
+<div class="container-fluid h-100">
+    <div class="row h-100">
+        <div class="col-sm-3 pt-2">
+            <img id="menu-icon" src="images/logo.png" alt="Menu Icon"/>
+        </div>
+        <div class="col-sm-6">
+            <div class="row align-content-center h-100">
+                <div class="col workplace h-75">
+                    @RenderBody()
+                </div>
             </div>
         </div>
-    </nav>
-</header>
-<div class="container">
-    <main role="main" class="pb-3">
-        @RenderBody()
-    </main>
+        <div class="col-sm-2">
+            <a asp-page="Welcome" class="btn button-secondary w-100">Welcome page</a>
+        </div>
+    </div>
 </div>
 
-<footer class="border-top footer text-muted">
-    <div class="container">
-        &copy; 2022 - WebApp - <a asp-area="" asp-page="/Privacy">Privacy</a>
-    </div>
-</footer>
+<footer class="footer text-white">&copy; computergraphics.com 2022</footer>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
-
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
