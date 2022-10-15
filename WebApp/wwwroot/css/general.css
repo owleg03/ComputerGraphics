@@ -39,3 +39,7 @@ body {
 .bg-round {
     border-radius: 10px;
 }
+
+.width-240 {
+    width: 240px;
+}

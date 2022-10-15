@@ -12,8 +12,17 @@
 <body>
 <div class="container-fluid h-100">
     <div class="row h-100">
-        <div class="col-sm-3 pt-2">
-            <img id="menu-icon" src="images/logo.png" alt="Menu Icon"/>
+        <div class="col-sm-3">
+            <img class="menu-icon" src="images/logo.png" alt="Menu Icon" onclick="openNav()"/>
+            <div id="mySidenav" class="sidenav">
+              <img class="menu-icon" src="images/logo.png" alt="Menu Icon" onclick="closeNav()"/>
+              <a id="menu-fractal" asp-page="Fractal" class="btn button-primary width-240">Fractal</a>
+              <a id="menu-colors" href="#" class="btn button-primary width-240">Color Schemes</a>
+              <a id="menu-quadrilateral" href="#" class="btn button-primary width-240">Quadrileteral</a>
+              <a href="#" class="btn button-secondary">About</a>
+              <a href="#" class="btn button-secondary">Source Code</a>
+              <a href="#" class="btn button-secondary">Contributors</a>
+            </div>
         </div>
         <div class="col-sm-6">
             <div class="row align-content-center h-100">
@@ -23,7 +32,7 @@
             </div>
         </div>
         <div class="col-sm-2">
-            <a asp-page="Welcome" class="btn button-secondary w-100">Welcome page</a>
+            <a asp-page="Welcome" class="btn button-secondary w-100">Welcome Page</a>
         </div>
     </div>
 </div>
@@ -32,7 +41,15 @@
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="~/js/site.js" asp-append-version="true"></script>
+<script>
+    function openNav() {
+      document.getElementById("mySidenav").style.width = "300px";
+    }
+    
+    function closeNav() {
+      document.getElementById("mySidenav").style.width = "0";
+    }
+</script>
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
