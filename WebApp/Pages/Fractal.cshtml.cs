@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Drawing;
 using System.Numerics;
 using Microsoft.AspNetCore.Mvc;
@@ -15,8 +16,14 @@ public class MandelbrotSet : PageModel
     public class MandelbrotSetViewModel
     {
         public byte[] ImageBytes { get; set; }
+        
+        [Range(1, 5000)]
         public int Height { get; set; }
+        
+        [Range(1, 5000)]
         public int Width { get; set; }
+        
+        [Range(1, 100)]
         public int MaxIterations { get; set; }
         public Color SetColor { get; set; }
         public Color BackgroundColor { get; set; }
@@ -36,7 +43,7 @@ public class MandelbrotSet : PageModel
         return (byte[])new ImageConverter().ConvertTo(bitmapImage, typeof(byte[]))!;
     }
     
-    public void OnGet(string returnUrl = "Index")
+    public void OnGet()
     {
         ViewModel.Height = 400;
         ViewModel.Width = 400;
@@ -45,8 +52,13 @@ public class MandelbrotSet : PageModel
         ViewModel.SetColor = Color.Aquamarine;
     }
 
-    public IActionResult OnPost(string returnUrl = "Index")
+    public IActionResult OnPost()
     {
+        if (!ModelState.IsValid)
+        {
+            return Page();
+        }
+        
         var width = ViewModel.Width;
         var height = ViewModel.Height;
         var maxK = ViewModel.MaxIterations;

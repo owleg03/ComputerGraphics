@@ -35,6 +35,8 @@
                         <input asp-for="ViewModel.BackgroundColor" type="color"/>
                     </div>
                 </div>
+                <div asp-validation-summary="All" class="text-danger mt-2">
+                </div>
             </div>
         </div>
         <div class="row">
@@ -59,10 +61,6 @@
                     <input id="c-input" asp-for="ViewModel.C" class="input-secondary width-30" onchange="setCRange()"/>
                     <input id="c-range" asp-for="ViewModel.C" 
                            type="range" min="0" max="100" step="1" onchange="setCInput()"/>
-                </div>
-                <div class="mt-2">
-                    <span class="bg-round border-1 mx-2">Scale:</span>
-                    <span>Slider here</span>
                 </div>
             </div>
         </div>
