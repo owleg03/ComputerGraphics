@@ -4,71 +4,112 @@
     ViewData["Title"] = "CG | Mandelbrot's Set";
 }
 
-<div class="row">
+<div class="row" onload="load()">
     <p class="text-center mt-2 mb-4">Mandelbrot's Set</p>
 </div>
 <div class="row">
-    <form method="post">
+    <form id="fractal-form" method="post">
         <div class="row">
-            <div class="col-sm-6">
-                <img height="300" width="300"
-                     src="@($"data:image/png;base64,{Convert.ToBase64String(Model.ViewModel.ImageBytes)}")"
-                     alt="Mandelbrot's Set Fractal"
-                />
+            <div class="col-sm-6 mb-3">
+                <div class="d-flex justify-content-center">
+                    <img height="200" width="200"
+                         src="@($"data:image/png;base64,{Convert.ToBase64String(Model.ViewModel.ImageBytes)}")"
+                         alt="Mandelbrot's Set Fractal"
+                    />
+                </div>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-5">
                 <div class="row">
                     <div class="col">
                         <span>Set color:</span>
                     </div>
                     <div class="col-sm-6">
-                        <input type="color"/>
+                        <input asp-for="ViewModel.SetColor" type="color"/>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row mt-2">
                     <div class="col">
                         <span>Background color:</span>
                     </div>
                     <div class="col">
-                        <input type="color"/>
+                        <input asp-for="ViewModel.BackgroundColor" type="color"/>
                     </div>
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="d-flex flex-column">
+            <div class="d-flex flex-column ms-5">
                 <div class="mt-3">
-                    <span class="bg-round border-1 mr-2">Width: </span>
-                    <input asp-for="ViewModel.Width"/>
+                    <span class="bg-round border-1 mx-2">Width: </span>
+                    <input asp-for="ViewModel.Width" class="input-secondary"/>
                 </div>
                 <div class="mt-2">
-                    <span class="bg-round border-1 mr-2">Height: </span>
-                    <input asp-for="ViewModel.Height"/>
+                    <span class="bg-round border-1 mx-2">Height: </span>
+                    <input asp-for="ViewModel.Height" class="input-secondary"/>
                 </div>
                 <div class="mt-2">
-                    <span class="bg-round border-1 mr-2">Iterations:</span>
-                    <button class="btn button-secondary">a1</button>
-                    <input asp-for="ViewModel.MaxIterations" class="input-secondary"/>
-                    <button class="btn button-secondary">a2</button>
-                </div>
-                <div>
-                    <span class="bg-round border-1 mr-2">C:</span>
-                    <input class="input-secondary"/>
-                    <span>Slider here</span>
+                    <span class="bg-round border-1 mx-2">Iterations:</span>
+                    <button type="button" class="input-secondary" onclick="decrementIterations()">&larr;</button>
+                    <input id="iterations-input" asp-for="ViewModel.MaxIterations" 
+                           class="input-secondary" onchange="update()"/>
+                    <button type="button" class="input-secondary" onclick="incrementIterations()">&rarr;</button>
                 </div>
                 <div class="mt-2">
-                    <span class="bg-round border-1 mr-2">Scale:</span>
+                    <span class="bg-round border-1 mx-2">C:</span>
+                    <input id="c-input" asp-for="ViewModel.C" class="input-secondary width-30" onchange="setCRange()"/>
+                    <input id="c-range" asp-for="ViewModel.C" 
+                           type="range" min="0" max="100" step="1" onchange="setCInput()"/>
+                </div>
+                <div class="mt-2">
+                    <span class="bg-round border-1 mx-2">Scale:</span>
                     <span>Slider here</span>
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row mt-2">
             <div class="d-flex justify-content-end">
-                <button type="submit" class="btn button-primary">Generate</button>
-                <a href="#" class="btn button-secondary">Theory</a>
-                <a href="#" class="btn button-secondary">Share</a>
-                <a href="#" class="btn button-primary">Save</a>
+                <button type="submit" class="btn button-primary mx-1">Generate</button>
+                <a href="#" class="btn button-secondary mx-1">Theory</a>
+                <a href="#" class="btn button-secondary mx-1">Share</a>
+                <a href="#" class="btn button-primary mx-1">Save</a>
             </div>
         </div>
     </form>
 </div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    function load() {
+        document.getElementById('menu-fractal').classList.remove('button-primary');
+        document.getElementById('menu-fractal').classList.add('button-secondary');
+    }
+    function incrementIterations() {
+        let iterations = document.getElementById('iterations-input');
+        let iterationsValue = parseInt(iterations.value, 10);
+        iterationsValue = isNaN(iterationsValue) ? 0 : iterationsValue;
+        ++iterationsValue;
+        iterations.value = iterationsValue;
+        update();
+    }
+    function decrementIterations() {
+        let iterations = document.getElementById('iterations-input');
+        let iterationsValue = parseInt(iterations.value, 10);
+        iterationsValue = isNaN(iterationsValue) ? 1 : iterationsValue;
+        if (iterationsValue > 0) {
+            --iterationsValue;
+        }
+        iterations.value = iterationsValue;
+        update();
+    }
+    function setCInput() {
+        console.log('setting C input...');
+        document.getElementById('c-input').value = document.getElementById('c-range').value;
+    }
+    function setCRange() {
+        console.log('setting C range...');
+        document.getElementById('c-range').value = document.getElementById('c-input').value;    
+    }
+    function update() {
+        document.getElementById('fractal-form').submit();    
+    }
+</script>

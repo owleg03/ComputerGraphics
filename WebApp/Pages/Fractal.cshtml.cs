@@ -18,6 +18,9 @@ public class MandelbrotSet : PageModel
         public int Height { get; set; }
         public int Width { get; set; }
         public int MaxIterations { get; set; }
+        public Color SetColor { get; set; }
+        public Color BackgroundColor { get; set; }
+        public int C { get; set; }
 
         public MandelbrotSetViewModel()
         {
@@ -38,6 +41,8 @@ public class MandelbrotSet : PageModel
         ViewModel.Height = 400;
         ViewModel.Width = 400;
         ViewModel.MaxIterations = 10;
+        ViewModel.SetColor = Color.Blue;
+        ViewModel.SetColor = Color.Aquamarine;
     }
 
     public IActionResult OnPost(string returnUrl = "Index")
@@ -45,7 +50,7 @@ public class MandelbrotSet : PageModel
         var width = ViewModel.Width;
         var height = ViewModel.Height;
         var maxK = ViewModel.MaxIterations;
-        
+
         Bitmap bitmapImage = new (width, height);
         for (var i = 0; i < width; ++i)
         {
@@ -67,7 +72,7 @@ public class MandelbrotSet : PageModel
                     }
                 }
 
-                var bitColor = k < maxK ? Color.DarkBlue  : Color.Aquamarine;
+                var bitColor = k < maxK ? ViewModel.BackgroundColor : ViewModel.SetColor;
                 bitmapImage.SetPixel(i, j, bitColor);
             }
         }
