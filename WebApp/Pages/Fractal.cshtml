@@ -57,19 +57,26 @@
                     <button type="button" class="input-secondary" onclick="incrementIterations()">&rarr;</button>
                 </div>
                 <div class="mt-2">
-                    <span class="bg-round border-1 mx-2">C:</span>
-                    <input id="c-input" asp-for="ViewModel.C" class="input-secondary width-30" onchange="setCRange()"/>
-                    <input id="c-range" asp-for="ViewModel.C" 
-                           type="range" min="0" max="100" step="1" onchange="setCInput()"/>
+                    <span class="bg-round border-1 mx-2">Scale:</span>
+                    <input id="scale-input" asp-for="ViewModel.Scale" class="input-secondary width-30 mr-2" readonly/>
+                    <input id="scale-range" asp-for="ViewModel.Scale" 
+                           type="range" min="0.05" max="10" step="0.05" onchange="setScaleInput()"/>
+                </div>
+                <div class="mt-2">
+                    <span class="bg-round border-1 mx-2">Center offset:</span>
+                    <input asp-for="ViewModel.CenterOffsetX" class="input-secondary width-50 mr-2"/>
+                    <input asp-for="ViewModel.CenterOffsetY" class="input-secondary width-50"/>
                 </div>
             </div>
         </div>
         <div class="row mt-2">
             <div class="d-flex justify-content-end">
                 <button type="submit" class="btn button-primary mx-1">Generate</button>
-                <a href="#" class="btn button-secondary mx-1">Theory</a>
-                <a href="#" class="btn button-secondary mx-1">Share</a>
-                <a href="#" class="btn button-primary mx-1">Save</a>
+                <a href="https://en.wikipedia.org/wiki/Mandelbrot_set" target="_blank" 
+                   class="btn button-secondary mx-1">Theory</a>
+                <a href="#" class="btn button-secondary mx-1" onclick="copySite()">Share</a>
+                <a href="@($"data:image/png;base64,{Convert.ToBase64String(Model.ViewModel.ImageBytes)}")"
+                   class="btn button-primary mx-1" download>Save</a>
             </div>
         </div>
     </form>
@@ -99,15 +106,14 @@
         iterations.value = iterationsValue;
         update();
     }
-    function setCInput() {
-        console.log('setting C input...');
-        document.getElementById('c-input').value = document.getElementById('c-range').value;
-    }
-    function setCRange() {
-        console.log('setting C range...');
-        document.getElementById('c-range').value = document.getElementById('c-input').value;    
+    function setScaleInput() {
+        document.getElementById('scale-input').value = document.getElementById('scale-range').value;
+        update();
     }
     function update() {
         document.getElementById('fractal-form').submit();    
+    }
+    function copySite() {
+        navigator.clipboard.writeText("https://localhost:44371/Fractal");    
     }
 </script>

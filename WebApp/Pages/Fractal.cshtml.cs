@@ -27,7 +27,15 @@ public class MandelbrotSet : PageModel
         public int MaxIterations { get; set; }
         public Color SetColor { get; set; }
         public Color BackgroundColor { get; set; }
-        public int C { get; set; }
+        
+        [Range(0.05, 10)]
+        public double Scale { get; set; }
+
+        [Range(0.05, 10)]
+        public double CenterOffsetX { get; set; }
+        
+        [Range(0.05, 10)]
+        public double CenterOffsetY { get; set; }
 
         public MandelbrotSetViewModel()
         {
@@ -50,6 +58,9 @@ public class MandelbrotSet : PageModel
         ViewModel.MaxIterations = 10;
         ViewModel.SetColor = Color.Blue;
         ViewModel.SetColor = Color.Aquamarine;
+        ViewModel.Scale = 4;
+        ViewModel.CenterOffsetX = 2;
+        ViewModel.CenterOffsetY = 2;
     }
 
     public IActionResult OnPost()
@@ -61,15 +72,17 @@ public class MandelbrotSet : PageModel
         
         var width = ViewModel.Width;
         var height = ViewModel.Height;
+        var scale = ViewModel.Scale;
+        var centerOffsetX = ViewModel.CenterOffsetX;
+        var centerOffsetY = ViewModel.CenterOffsetY;
         var maxK = ViewModel.MaxIterations;
-
         Bitmap bitmapImage = new (width, height);
         for (var i = 0; i < width; ++i)
         {
             for (var j = 0; j < height; ++j)
             {
-                var real = (i - width / 2.0) / (width / 4.0);
-                var imaginary = (j - height / 2.0) / (height / 4.0);
+                var real = (i - width / centerOffsetY) / (width / scale);
+                var imaginary = (j - height / centerOffsetX) / (height / scale);
                 var c = new Complex(real, imaginary);
                 var z = new Complex(0, 0);
                 var k = 0;
