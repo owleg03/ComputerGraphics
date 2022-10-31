@@ -50,7 +50,7 @@ public class ColorSchemes : PageModel
         }
         
         // CMYK
-        ViewModel.Cmyk = WhiteColor;
+        ViewModel.Cmyk = GetHexFromCmyk(ViewModel.C, ViewModel.M, ViewModel.Y, ViewModel.K);
         
         // HSL
         ViewModel.Hsl = GetHexFromHsl(ViewModel.H, ViewModel.S, ViewModel.L);
@@ -58,7 +58,25 @@ public class ColorSchemes : PageModel
         return Page();
     }
 
-    private string GetHexFromHsl(int h, int s, int l)
+    private static string GetHexFromCmyk(int c, int m, int y, int k)
+    {
+        double cTemp = c / 100.0;
+        double mTemp = m / 100.0;
+        double yTemp = y / 100.0;
+        double kTemp = k / 100.0;
+
+        // Converting to RGB
+        double r = 255 * (1 - cTemp) * (1 - kTemp);
+        double g = 255 * (1 - mTemp) * (1 - kTemp);
+        double b = 255 * (1 - yTemp) * (1 - kTemp);
+        
+        // Converting to hex
+        var color = Color.FromArgb((int)Math.Ceiling(r), (int)Math.Ceiling(g), (int)Math.Ceiling(b));
+        var hex = "#" + color.R.ToString("X2") + color.G.ToString("X2") + color.B.ToString("X2");
+        return hex;
+    }
+
+    private static string GetHexFromHsl(int h, int s, int l)
     {
         double sTemp = s / 100.0;
         double lTemp = l / 100.0;
