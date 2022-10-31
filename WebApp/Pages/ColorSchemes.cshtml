@@ -15,22 +15,22 @@
                     <div class="d-flex flex-column">
                         <div class="mt-3">
                             <span class="d-inline-block width-30">c</span>
-                            <input id="c-input" asp-for="ViewModel.C" class="input-secondary width-50 mr-2" readonly/>
+                            <input id="c-input" asp-for="ViewModel.C" class="input-secondary width-50 mr-2" onchange="updateCRange()"/>
                             <input id="c-range" asp-for="ViewModel.C" type="range" min="0" max="100" step="1" onchange="updateCInput()"/>
                         </div>
                         <div class="mt-3">
                             <span class="d-inline-block width-30">m</span>
-                            <input id="m-input" asp-for="ViewModel.M" class="input-secondary width-50 mr-2" readonly/>
+                            <input id="m-input" asp-for="ViewModel.M" class="input-secondary width-50 mr-2" onchange="updateMRange()"/>
                             <input id="m-range" asp-for="ViewModel.M" type="range" min="0" max="100" step="1" onchange="updateMInput()"/>
                         </div>
                         <div class="mt-3">
                             <span class="d-inline-block width-30">y</span>
-                            <input id="y-input" asp-for="ViewModel.Y" class="input-secondary width-50 mr-2" readonly/>
+                            <input id="y-input" asp-for="ViewModel.Y" class="input-secondary width-50 mr-2" onchange="updateYRange()"/>
                             <input id="y-range" asp-for="ViewModel.Y" type="range" min="0" max="100" step="1" onchange="updateYInput()"/>
                         </div>
                         <div class="mt-3">
                             <span class="d-inline-block width-30">k</span>
-                            <input id="k-input" asp-for="ViewModel.K" class="input-secondary width-50 mr-2" readonly/>
+                            <input id="k-input" asp-for="ViewModel.K" class="input-secondary width-50 mr-2" onchange="updateKRange()"/>
                             <input id="k-range" asp-for="ViewModel.K" type="range" min="0" max="100" step="1" onchange="updateKInput()"/>
                         </div>
                     </div>
@@ -44,17 +44,17 @@
                     <div class="d-flex flex-column">
                         <div class="mt-3">
                             <span class="d-inline-block width-30">h</span>
-                            <input id="h-input" asp-for="ViewModel.H" class="input-secondary width-50 mr-2" readonly/>
+                            <input id="h-input" asp-for="ViewModel.H" class="input-secondary width-50 mr-2" onchange="updateHRange()"/>
                             <input id="h-range" asp-for="ViewModel.H" type="range" min="0" max="360" step="1" onchange="updateHInput()"/>
                         </div>
                         <div class="mt-3">
                             <span class="d-inline-block width-30">s</span>
-                            <input id="s-input" asp-for="ViewModel.S" class="input-secondary width-50 mr-2" readonly/>
+                            <input id="s-input" asp-for="ViewModel.S" class="input-secondary width-50 mr-2" onchange="updateSRange()"/>
                             <input id="s-range" asp-for="ViewModel.S" type="range" min="0" max="100" step="1" onchange="updateSInput()"/>
                         </div>
                         <div class="mt-3">
                             <span class="d-inline-block width-30">l</span>
-                            <input id="l-input" asp-for="ViewModel.L" class="input-secondary width-50 mr-2" readonly/>
+                            <input id="l-input" asp-for="ViewModel.L" class="input-secondary width-50 mr-2" onchange="updateLRange()"/>
                             <input id="l-range" asp-for="ViewModel.L" type="range" min="0" max="100" step="1" onchange="updateLInput()"/>
                         </div>
                     </div>
@@ -80,25 +80,67 @@
     function copySite() {
         navigator.clipboard.writeText('https://localhost:44371/ColorSchemes');    
     }
+    function submitForm() {
+        document.getElementById('color-schemes-form').submit();
+    }
+    
+    // For input updates
     function updateCInput() {
         document.getElementById('c-input').value = document.getElementById('c-range').value;
+        submitForm();
     }
     function updateMInput() {
         document.getElementById('m-input').value = document.getElementById('m-range').value;
+        submitForm();
     }
     function updateYInput() {
         document.getElementById('y-input').value = document.getElementById('y-range').value;
+        submitForm();
     }
     function updateKInput() {
         document.getElementById('k-input').value = document.getElementById('k-range').value;
+        submitForm();
     }
     function updateHInput() {
         document.getElementById('h-input').value = document.getElementById('h-range').value;
+        submitForm();
     }
     function updateSInput() {
         document.getElementById('s-input').value = document.getElementById('s-range').value;
+        submitForm();
     }
     function updateLInput() {
         document.getElementById('l-input').value = document.getElementById('l-range').value;
+        submitForm();
+    }
+    
+    // For range updates
+    function updateCRange() {
+        document.getElementById('c-range').value = document.getElementById('c-input').value;
+        submitForm();
+    }
+    function updateMRange() {
+        document.getElementById('m-range').value = document.getElementById('m-input').value;
+        submitForm();
+    }
+    function updateYRange() {
+        document.getElementById('y-range').value = document.getElementById('y-input').value;
+        submitForm();
+    }
+    function updateKRange() {
+        document.getElementById('k-range').value = document.getElementById('k-input').value;
+        submitForm();
+    }
+    function updateHRange() {
+        document.getElementById('h-range').value = document.getElementById('h-input').value;
+        submitForm();
+    }
+    function updateSRange() {
+        document.getElementById('s-range').value = document.getElementById('s-input').value;
+        submitForm();
+    }
+    function updateLRange() {
+        document.getElementById('l-range').value = document.getElementById('l-input').value;
+        submitForm();
     }
 </script>
