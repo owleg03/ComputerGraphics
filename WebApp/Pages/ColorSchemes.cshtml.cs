@@ -7,8 +7,14 @@ namespace WebApp.Pages;
 
 public class ColorSchemes : PageModel
 {
-    private static IFormFile? _setImageFile;
-    private static bool _isImageSet;
+    // Statics
+    private static string? _imageFileGuid;
+    private static string? _imageFileName;
+    private static string? _imageFileFullName;
+    private static string? _imageFileAbsolutePath;
+    private static string? _imageFileRelativePath;
+
+    // Const values
     private const string WhiteColor = "#FFFFFF";
     private const string DefaultImageName = "logo.png";
     private const string DefaultImageRelativeFilePath = "/images/logo.png";
@@ -25,10 +31,7 @@ public class ColorSchemes : PageModel
     {
         // Image
         public IFormFile? ImageFile { get; set; }
-        public string? ImageFileGuid { get; set; }
-        public string? ImageFileName { get; set; }
         public string? ImageFileRelativePath { get; set; }
-        public string? ImageFileAbsolutePath { get; set; }
         public int GrayColorLightness { get; set; }
         
         // Colors
@@ -52,7 +55,8 @@ public class ColorSchemes : PageModel
     
     public void OnGet()
     {
-        ViewModel.ImageFileRelativePath = DefaultImageRelativeFilePath;
+        _imageFileRelativePath = DefaultImageRelativeFilePath;
+        ViewModel.ImageFileRelativePath = _imageFileRelativePath;
         
         // White as a default color
         ViewModel.Cmyk = WhiteColor;
@@ -67,40 +71,30 @@ public class ColorSchemes : PageModel
             return Page();
         }
 
-        _isImageSet = ViewModel.ImageFile != null || _setImageFile != null;
-
-        // Image
-        if (!_isImageSet)
-        {
-            ViewModel.ImageFileName = DefaultImageName;
-            ViewModel.ImageFileGuid = string.Empty;
-            ViewModel.ImageFileRelativePath = DefaultImageRelativeFilePath;
-            ViewModel.ImageFileAbsolutePath = DefaultImageAbsoluteFilePath;
-        }
-        else
+        // If user set new image file
+        if (ViewModel.ImageFile != null && ViewModel.ImageFile.FileName != _imageFileFullName)
         {
             // Save user image
-            ViewModel.ImageFileGuid = Guid.NewGuid() + "_";
-            var wasInputFileSet = ViewModel.ImageFile != null;
-            if (!wasInputFileSet)
-            {
-                ViewModel.ImageFile = _setImageFile;
-            }
-            ViewModel.ImageFileName = ViewModel.ImageFile!.FileName;
-            var imageFileFullName = ViewModel.ImageFileGuid + ViewModel.ImageFileName;
-            ViewModel.ImageFileRelativePath = Path.Combine(ImagesFolderRelativePath, imageFileFullName);
-            ViewModel.ImageFileAbsolutePath = Path.Combine(ImagesFolderAbsolutePath, imageFileFullName);
-            await using var fileStreamInitial = new FileStream(ViewModel.ImageFileAbsolutePath, FileMode.Create);
-            if (wasInputFileSet)
-            {
-                await ViewModel.ImageFile.CopyToAsync(fileStreamInitial);
-            }
+            _imageFileGuid = Guid.NewGuid() + "_";
+            _imageFileName = ViewModel.ImageFile.FileName;
+            _imageFileFullName = _imageFileGuid + _imageFileName;
+            _imageFileRelativePath = Path.Combine(ImagesFolderRelativePath, _imageFileFullName);
+            _imageFileAbsolutePath = Path.Combine(ImagesFolderAbsolutePath, _imageFileFullName);
+            await using var fileStreamInitial = new FileStream(_imageFileAbsolutePath, FileMode.Create);
+            await ViewModel.ImageFile.CopyToAsync(fileStreamInitial);
+            fileStreamInitial.Close();
         }
-        _isImageSet = true;
-        _setImageFile = ViewModel.ImageFile!;
         
+        if (_imageFileName == null)
+        {
+            _imageFileName = DefaultImageName;
+            _imageFileGuid = string.Empty;
+            _imageFileRelativePath = DefaultImageRelativeFilePath;
+            _imageFileAbsolutePath = DefaultImageAbsoluteFilePath;
+        }
+
         // TODO: change Bitmap to a cross-platform alternative
-        var imageBitmap = new Bitmap(ViewModel.ImageFileAbsolutePath);
+        var imageBitmap = new Bitmap(_imageFileAbsolutePath);
         for (int i = 0; i < imageBitmap.Width; ++i)
         {
             for (int j = 0; j < imageBitmap.Height; ++j)
@@ -128,12 +122,16 @@ public class ColorSchemes : PageModel
         }
         
         // Save and display updated image
-        var updatedImageFileName = ViewModel.ImageFileGuid + "updated_" + ViewModel.ImageFileName;
-        ViewModel.ImageFileRelativePath = Path.Combine(ImagesFolderRelativePath, updatedImageFileName);
-        ViewModel.ImageFileAbsolutePath = Path.Combine(ImagesFolderAbsolutePath, updatedImageFileName);
-        await using var fileStreamUpdated = new FileStream(ViewModel.ImageFileAbsolutePath, FileMode.Create);
-        imageBitmap.Save(fileStreamUpdated, ImageFormat.Jpeg);
+        _imageFileGuid = Guid.NewGuid() + "_";
+        _imageFileFullName = _imageFileGuid + _imageFileName;
+        _imageFileRelativePath = Path.Combine(ImagesFolderRelativePath, _imageFileFullName);
+        _imageFileAbsolutePath = Path.Combine(ImagesFolderAbsolutePath, _imageFileFullName);
+        await using var fileStreamUpdated = new FileStream(_imageFileAbsolutePath, FileMode.Create);
+        imageBitmap.Save(fileStreamUpdated, ImageFormat.Png);
+        fileStreamUpdated.Close();
         
+        ViewModel.ImageFileRelativePath = _imageFileRelativePath!;
+
 
         // CMYK
         ViewModel.Cmyk = GetHexFromCmyk(ViewModel.C, ViewModel.M, ViewModel.Y, ViewModel.K);
