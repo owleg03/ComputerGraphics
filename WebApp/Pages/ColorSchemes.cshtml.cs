@@ -32,7 +32,7 @@ public class ColorSchemes : PageModel
         // Image
         public IFormFile? ImageFile { get; set; }
         public string? ImageFileRelativePath { get; set; }
-        public byte[] ImageBytes { get; set; } = null!;
+        public byte[]? ImageBytes { get; set; }
         public int GrayColorLightness { get; set; }
         public int ImageFromX { get; set; }
         public int ImageFromY { get; set; }
@@ -63,6 +63,7 @@ public class ColorSchemes : PageModel
         _imageFileRelativePath = DefaultImageRelativeFilePath;
         ViewModel.ImageFileRelativePath = _imageFileRelativePath;
         var imageBitmap = new Bitmap(DefaultImageAbsoluteFilePath);
+        ViewModel.ImageBytes = BitmapToByteArray(imageBitmap);
         ViewModel.ImageToX = imageBitmap.Width;
         ViewModel.ImageToY = imageBitmap.Height;
         
@@ -156,7 +157,7 @@ public class ColorSchemes : PageModel
         imageBitmap.Save(fileStreamUpdated, ImageFormat.Png);
         fileStreamUpdated.Close();
         
-        ViewModel.ImageFileRelativePath = _imageFileRelativePath!;
+        ViewModel.ImageFileRelativePath = _imageFileRelativePath;
         ViewModel.ImageBytes = BitmapToByteArray(imageBitmap);
 
         // CMYK
