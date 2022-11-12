@@ -32,7 +32,12 @@ public class ColorSchemes : PageModel
         // Image
         public IFormFile? ImageFile { get; set; }
         public string? ImageFileRelativePath { get; set; }
+        public byte[] ImageBytes { get; set; } = null!;
         public int GrayColorLightness { get; set; }
+        public int ImageFromX { get; set; }
+        public int ImageFromY { get; set; }
+        public int ImageToX { get; set; }
+        public int ImageToY { get; set; }
         
         // Colors
         public string Cmyk { get; set; } = string.Empty;
@@ -57,6 +62,9 @@ public class ColorSchemes : PageModel
     {
         _imageFileRelativePath = DefaultImageRelativeFilePath;
         ViewModel.ImageFileRelativePath = _imageFileRelativePath;
+        var imageBitmap = new Bitmap(DefaultImageAbsoluteFilePath);
+        ViewModel.ImageToX = imageBitmap.Width;
+        ViewModel.ImageToY = imageBitmap.Height;
         
         // White as a default color
         ViewModel.Cmyk = WhiteColor;
@@ -95,9 +103,27 @@ public class ColorSchemes : PageModel
 
         // TODO: change Bitmap to a cross-platform alternative
         var imageBitmap = new Bitmap(_imageFileAbsolutePath);
-        for (int i = 0; i < imageBitmap.Width; ++i)
+        
+        // Starting coordinates
+        int fromX = ViewModel.ImageFromX;
+        fromX = fromX < 0 ? 0 : fromX;
+        fromX = fromX >= imageBitmap.Width ? imageBitmap.Width - 1 : fromX;
+        int fromY = ViewModel.ImageFromY;
+        fromY = fromY < 0 ? 0 : fromY;
+        fromY = fromY >= imageBitmap.Height ? imageBitmap.Height - 1 : fromY;
+        
+        // Ending coordinates
+        int toX = ViewModel.ImageToX;
+        toX = toX < 0 ? 0 : toX;
+        toX = toX > imageBitmap.Width ? imageBitmap.Width : toX;
+        int toY = ViewModel.ImageToY;
+        toY = toY < 0 ? 0 : toY;
+        toY = toY > imageBitmap.Height ? imageBitmap.Height : toY;
+
+            
+        for (int i = fromX; i < toX; ++i)
         {
-            for (int j = 0; j < imageBitmap.Height; ++j)
+            for (int j = fromY; j < toY; ++j)
             {
                 var pixel = imageBitmap.GetPixel(i, j);
                 
@@ -131,7 +157,7 @@ public class ColorSchemes : PageModel
         fileStreamUpdated.Close();
         
         ViewModel.ImageFileRelativePath = _imageFileRelativePath!;
-
+        ViewModel.ImageBytes = BitmapToByteArray(imageBitmap);
 
         // CMYK
         ViewModel.Cmyk = GetHexFromCmyk(ViewModel.C, ViewModel.M, ViewModel.Y, ViewModel.K);
@@ -140,6 +166,11 @@ public class ColorSchemes : PageModel
         ViewModel.Hsl = GetHexFromHsl(ViewModel.H, ViewModel.S, ViewModel.L);
 
         return Page();
+    }
+    
+    private static byte[] BitmapToByteArray(Bitmap bitmapImage)
+    {
+        return (byte[])new ImageConverter().ConvertTo(bitmapImage, typeof(byte[]))!;
     }
     
     private static string GetHexFromCmyk(int c, int m, int y, int k)

@@ -57,6 +57,18 @@
                             <input id="gray-input" asp-for="ViewModel.GrayColorLightness" class="input-secondary width-50 mr-2" onchange="updateGrayRange()"/>
                             <input id="gray-range" asp-for="ViewModel.GrayColorLightness" type="range" min="-255" max="255" step="1" class="w-50" onchange="updateGrayInput()"/>
                         </div>
+                        <div class="mt-2 ms-3">
+                            <span class="d-inline-flex width-30 me-3">From:</span>
+                            <input asp-for="ViewModel.ImageFromX" class="input-secondary width-50 mr-2"/>
+                            <span>:</span>
+                            <input asp-for="ViewModel.ImageFromY" class="input-secondary width-50 mr-2"/>
+                        </div>
+                        <div class="mt-2 ms-3">
+                            <span class="d-inline-flex width-30 me-3">To:</span>
+                            <input asp-for="ViewModel.ImageToX" class="input-secondary width-50 mr-2"/>
+                            <span>:</span>
+                            <input asp-for="ViewModel.ImageToY" class="input-secondary width-50 mr-2"/>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -90,13 +102,14 @@
         <div class="row mt-2">
             <div asp-validation-summary="All" class="text-danger"></div>
         </div>
-        <div class="row mt-2">
+        <div class="row mt-1">
             <div class="d-flex justify-content-end">
                 <button type="submit" class="btn button-primary mx-1">Generate</button>
                 <a href="https://en.wikipedia.org/wiki/Color_scheme" target="_blank" 
                    class="btn button-secondary mx-1">Theory</a>
                 <a href="#" class="btn button-secondary mx-1" onclick="copySite()">Share</a>
-                <a href="#" class="btn button-primary mx-1" download>Save</a>
+                <a href="@($"data:image/png;base64,{Convert.ToBase64String(Model.ViewModel.ImageBytes)}")" 
+                   class="btn button-primary mx-1" download>Save</a>
             </div>
         </div>
     </form>
