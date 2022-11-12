@@ -1,0 +1,94 @@
+﻿@page
+@model WebApp.Pages.Quadrilateral
+
+@{
+    Layout = "Shared/_Layout";
+}
+
+<link rel="stylesheet" href="css/quadrilateral.css" asp-append-version="true"/>
+
+<div class="row" onload="load()">
+    <p class="text-center mt-2 mb-4">Mandelbrot's Set</p>
+</div>
+<div class="row h-50">
+    <!-- Quadrilateral canvas -->
+    <div class="col-sm-5">
+        <canvas id="quadrilateral-canvas"></canvas>
+    </div>
+    <div class="col-sm-6">
+        <div class="row mt-3 h-50">
+            <!-- Quadrilateral points inputs -->
+            <div class="col-sm-5">
+                <div class="row">
+                    <div class="d-flex flex-column">
+                        <div class="ms-3">
+                            <span class="d-inline-flex width-30 ms-4">X</span>
+                            <span class="ms-2">Y</span>
+                        </div>
+                        <div class="mt-1">
+                            <span class="d-inline-flex width-30">A</span>
+                            <input id="aX-input" class="input-secondary width-30 me-2"/>
+                            <input id="aY-input" class="input-secondary width-30"/>
+                        </div>
+                        <div class="mt-1">
+                            <span class="d-inline-flex width-30">B</span>
+                            <input id="bX-input" class="input-secondary width-30 me-2"/>
+                            <input id="bY-input" class="input-secondary width-30"/>
+                        </div>
+                        <div class="mt-1">
+                            <span class="d-inline-flex width-30">C</span>
+                            <input id="cX-input" class="input-secondary width-30 me-2"/>
+                            <input id="cY-input" class="input-secondary width-30"/>
+                        </div>
+                        <div class="mt-1">
+                            <span class="d-inline-flex width-30">D</span>
+                            <input id="dX-input" class="input-secondary width-30 me-2"/>
+                            <input id="dY-input" class="input-secondary width-30"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 pt-2">
+                <a id="generate-button" class="btn button-primary w-100 h-75">Generate</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-4">
+        <div class="row">
+            <div class="px-3">
+                <a id="rotate-button" class="btn button-primary w-100">Rotate</a>
+            </div>
+            <div class="d-flex justify-content-end">
+                <a id="play-button" class="btn button-secondary mx-1">Play</a>
+                <a id="restart-button" class="btn button-secondary mx-1">Restart</a>
+                <a id="capture-button" class="btn button-secondary mx-1">Capture</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mt-1">
+    <div class="d-flex justify-content-end">
+        <a href="https://en.wikipedia.org/wiki/Quadrilateral" target="_blank" 
+           class="btn button-secondary mx-1">Theory</a>
+        <a href="#" class="btn button-secondary mx-1" onclick="copySite()">Share</a>
+        <a href="#" class="btn button-primary mx-1" download>Save</a>
+    </div>
+</div>
+    @*<div class="col-sm-6 mb-3">
+        <div class="d-flex justify-content-center">*@
+
+<script>
+    function copySite() {
+        navigator.clipboard.writeText('https://localhost:44371/ColorSchemes');    
+    }
+    function load() {
+        document.getElementById('menu-quadrilateral').classList.remove('button-primary');
+        document.getElementById('menu-quadrilateral').classList.add('button-secondary');
+        
+        // Canvas
+        let canvas = document.getElementById('quadrilateral-canvas');
+        console.log(canvas);
+    }
+</script>    
