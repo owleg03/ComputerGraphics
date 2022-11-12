@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Drawing.Imaging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -6,7 +7,14 @@ namespace WebApp.Pages;
 
 public class ColorSchemes : PageModel
 {
+    private static IFormFile? _setImageFile;
+    private static bool _isImageSet;
     private const string WhiteColor = "#FFFFFF";
+    private const string DefaultImageName = "logo.png";
+    private const string DefaultImageRelativeFilePath = "/images/logo.png";
+    private const string DefaultImageAbsoluteFilePath = "C:/Users/Oleg/Desktop/KG/ComputerGraphics/WebApp/wwwroot/images/logo.png";
+    private const string ImagesFolderRelativePath = "/images/";
+    private const string ImagesFolderAbsolutePath = "C:/Users/Oleg/Desktop/KG/ComputerGraphics/WebApp/wwwroot/images";
     
     public ColorSchemes()
     {
@@ -15,6 +23,14 @@ public class ColorSchemes : PageModel
     
     public class ColorSchemesViewModel
     {
+        // Image
+        public IFormFile? ImageFile { get; set; }
+        public string? ImageFileGuid { get; set; }
+        public string? ImageFileName { get; set; }
+        public string? ImageFileRelativePath { get; set; }
+        public string? ImageFileAbsolutePath { get; set; }
+        public int GrayColorLightness { get; set; }
+        
         // Colors
         public string Cmyk { get; set; } = string.Empty;
         public string Hsl { get; set; } = string.Empty;
@@ -36,19 +52,89 @@ public class ColorSchemes : PageModel
     
     public void OnGet()
     {
+        ViewModel.ImageFileRelativePath = DefaultImageRelativeFilePath;
+        
         // White as a default color
         ViewModel.Cmyk = WhiteColor;
         ViewModel.Hsl = WhiteColor;
         ViewModel.L = 100;
     }
 
-    public IActionResult OnPost()
+    public async Task<IActionResult> OnPost()
     {
         if (!ModelState.IsValid)
         {
             return Page();
         }
+
+        _isImageSet = ViewModel.ImageFile != null || _setImageFile != null;
+
+        // Image
+        if (!_isImageSet)
+        {
+            ViewModel.ImageFileName = DefaultImageName;
+            ViewModel.ImageFileGuid = string.Empty;
+            ViewModel.ImageFileRelativePath = DefaultImageRelativeFilePath;
+            ViewModel.ImageFileAbsolutePath = DefaultImageAbsoluteFilePath;
+        }
+        else
+        {
+            // Save user image
+            ViewModel.ImageFileGuid = Guid.NewGuid() + "_";
+            var wasInputFileSet = ViewModel.ImageFile != null;
+            if (!wasInputFileSet)
+            {
+                ViewModel.ImageFile = _setImageFile;
+            }
+            ViewModel.ImageFileName = ViewModel.ImageFile!.FileName;
+            var imageFileFullName = ViewModel.ImageFileGuid + ViewModel.ImageFileName;
+            ViewModel.ImageFileRelativePath = Path.Combine(ImagesFolderRelativePath, imageFileFullName);
+            ViewModel.ImageFileAbsolutePath = Path.Combine(ImagesFolderAbsolutePath, imageFileFullName);
+            await using var fileStreamInitial = new FileStream(ViewModel.ImageFileAbsolutePath, FileMode.Create);
+            if (wasInputFileSet)
+            {
+                await ViewModel.ImageFile.CopyToAsync(fileStreamInitial);
+            }
+        }
+        _isImageSet = true;
+        _setImageFile = ViewModel.ImageFile!;
         
+        // TODO: change Bitmap to a cross-platform alternative
+        var imageBitmap = new Bitmap(ViewModel.ImageFileAbsolutePath);
+        for (int i = 0; i < imageBitmap.Width; ++i)
+        {
+            for (int j = 0; j < imageBitmap.Height; ++j)
+            {
+                var pixel = imageBitmap.GetPixel(i, j);
+                
+                // Red component
+                int r = pixel.R + ViewModel.GrayColorLightness;
+                r = r < 0 ? 0 : r;
+                r = r > 255 ? 255 : r;
+                
+                // Green component
+                int g = pixel.G + ViewModel.GrayColorLightness;
+                g = g < 0 ? 0 : g;
+                g = g > 255 ? 255 : g;
+                
+                // Blue component
+                int b = pixel.B + ViewModel.GrayColorLightness;
+                b = b < 0 ? 0 : b;
+                b = b > 255 ? 255 : b;
+
+                var updatedColor = Color.FromArgb(r, g, b);
+                imageBitmap.SetPixel(i, j, updatedColor);
+            }
+        }
+        
+        // Save and display updated image
+        var updatedImageFileName = ViewModel.ImageFileGuid + "updated_" + ViewModel.ImageFileName;
+        ViewModel.ImageFileRelativePath = Path.Combine(ImagesFolderRelativePath, updatedImageFileName);
+        ViewModel.ImageFileAbsolutePath = Path.Combine(ImagesFolderAbsolutePath, updatedImageFileName);
+        await using var fileStreamUpdated = new FileStream(ViewModel.ImageFileAbsolutePath, FileMode.Create);
+        imageBitmap.Save(fileStreamUpdated, ImageFormat.Jpeg);
+        
+
         // CMYK
         ViewModel.Cmyk = GetHexFromCmyk(ViewModel.C, ViewModel.M, ViewModel.Y, ViewModel.K);
         
@@ -57,7 +143,7 @@ public class ColorSchemes : PageModel
 
         return Page();
     }
-
+    
     private static string GetHexFromCmyk(int c, int m, int y, int k)
     {
         double cTemp = c / 100.0;
