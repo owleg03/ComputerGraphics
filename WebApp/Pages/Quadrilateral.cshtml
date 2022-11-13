@@ -7,13 +7,13 @@
 
 <link rel="stylesheet" href="css/quadrilateral.css" asp-append-version="true"/>
 
-<div class="row" onload="load()">
-    <p class="text-center mt-2 mb-4">Mandelbrot's Set</p>
+<div class="row">
+    <p class="text-center mt-2 mb-4">Right Quadrilateral</p>
 </div>
 <div class="row h-50">
     <!-- Quadrilateral canvas -->
     <div class="col-sm-5">
-        <canvas id="quadrilateral-canvas"></canvas>
+        <canvas id="quadrilateral-canvas" width="250" height="250"></canvas>
     </div>
     <div class="col-sm-6">
         <div class="row mt-3 h-50">
@@ -27,44 +27,50 @@
                         </div>
                         <div class="mt-1">
                             <span class="d-inline-flex width-30">A</span>
-                            <input id="aX-input" class="input-secondary width-30 me-2"/>
-                            <input id="aY-input" class="input-secondary width-30"/>
+                            <input id="aX-input" type="number" value="-2" class="input-secondary width-30 me-2"/>
+                            <input id="aY-input" type="number" value="2" class="input-secondary width-30"/>
                         </div>
                         <div class="mt-1">
                             <span class="d-inline-flex width-30">B</span>
-                            <input id="bX-input" class="input-secondary width-30 me-2"/>
-                            <input id="bY-input" class="input-secondary width-30"/>
+                            <input id="bX-input" type="number" value="2" class="input-secondary width-30 me-2"/>
+                            <input id="bY-input" type="number" value="2" class="input-secondary width-30"/>
                         </div>
                         <div class="mt-1">
                             <span class="d-inline-flex width-30">C</span>
-                            <input id="cX-input" class="input-secondary width-30 me-2"/>
-                            <input id="cY-input" class="input-secondary width-30"/>
+                            <input id="cX-input" type="number" value="2" class="input-secondary width-30 me-2"/>
+                            <input id="cY-input" type="number" value="-2" class="input-secondary width-30"/>
                         </div>
                         <div class="mt-1">
                             <span class="d-inline-flex width-30">D</span>
-                            <input id="dX-input" class="input-secondary width-30 me-2"/>
-                            <input id="dY-input" class="input-secondary width-30"/>
+                            <input id="dX-input" type="number" value="-2" class="input-secondary width-30 me-2"/>
+                            <input id="dY-input" type="number" value="-2" class="input-secondary width-30"/>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-sm-6 pt-2">
-                <a id="generate-button" class="btn button-primary w-100 h-75">Generate</a>
+                <a id="generate-button" class="btn button-primary w-100 h-75" onclick="generate()">Generate</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-5">
+                <!-- White space -->
+            </div>
+            <div class="col-sm-6">
+                <a class="btn button-secondary w-100 h-75" onclick="setDefaultPoints()">Default Points</a>
             </div>
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-sm-4">
-        <div class="row">
-            <div class="px-3">
-                <a id="rotate-button" class="btn button-primary w-100">Rotate</a>
-            </div>
-            <div class="d-flex justify-content-end">
-                <a id="play-button" class="btn button-secondary mx-1">Play</a>
-                <a id="restart-button" class="btn button-secondary mx-1">Restart</a>
-                <a id="capture-button" class="btn button-secondary mx-1">Capture</a>
-            </div>
+<div class="row ms-1">
+    <a id="rotate-button" class="btn button-primary w-25" onclick="rotate()">Rotate</a>
+</div>
+<div class="row ms-2">
+    <div class="col-sm-6">
+        <div class="d-flex justify-content-end w-50">
+            <a class="btn button-secondary mx-1" onclick="stopRotation()">Stop</a>
+            <a class="btn button-secondary mx-1" onclick="resetRotation()">Reset</a>
+            <a class="btn button-secondary mx-1" onclick="rotateManually()">+1&deg;</a>
         </div>
     </div>
 </div>
@@ -73,22 +79,302 @@
         <a href="https://en.wikipedia.org/wiki/Quadrilateral" target="_blank" 
            class="btn button-secondary mx-1">Theory</a>
         <a href="#" class="btn button-secondary mx-1" onclick="copySite()">Share</a>
-        <a href="#" class="btn button-primary mx-1" download>Save</a>
+        <a href="#" class="btn button-primary mx-1" onclick="saveCanvas()">Save</a>
     </div>
 </div>
-    @*<div class="col-sm-6 mb-3">
-        <div class="d-flex justify-content-center">*@
 
 <script>
-    function copySite() {
-        navigator.clipboard.writeText('https://localhost:44371/ColorSchemes');    
+    // Grid
+    const gridSize = 20;
+    const xAxisLineStart = 6;
+    const yAxisLineStart = 6;
+    
+    // Colors
+    const blueColor = "#0000FF";
+    const redColor = "#FF0000";
+    const grayColor = "#E9E9E9";
+    
+    // Coordinates
+    let aX, aY, bX, bY, cX, cY, dX, dY;
+    
+    let intervalID = false;
+    
+    window.onload = function() {
+        load();
+        generate();
     }
+    
+    function copySite() {
+        navigator.clipboard.writeText('https://localhost:44371/Quadrilateral');    
+    }
+    
+    function setDefaultPoints() {
+        document.getElementById('aX-input').value = -2;
+        document.getElementById('aY-input').value = 2;
+        document.getElementById('bX-input').value = 2;
+        document.getElementById('bY-input').value = 2;
+        document.getElementById('cX-input').value = 2;
+        document.getElementById('cY-input').value = -2;
+        document.getElementById('dX-input').value = -2;
+        document.getElementById('dY-input').value = -2;
+    }
+    
+    function saveCanvas() {
+        console.log('Saving image..');
+        const canvas = document.getElementById('quadrilateral-canvas');
+        const link = document.createElement('a');
+        link.download = 'quadrilateral.png';
+        link.href = canvas.toDataURL();
+        link.click();
+        link.delete;
+    }
+    
     function load() {
         document.getElementById('menu-quadrilateral').classList.remove('button-primary');
         document.getElementById('menu-quadrilateral').classList.add('button-secondary');
-        
-        // Canvas
-        let canvas = document.getElementById('quadrilateral-canvas');
-        console.log(canvas);
     }
-</script>    
+    
+    function stopRotation() {
+        if (intervalID != null) {
+            clearInterval(intervalID);
+            intervalID = false;
+        }
+    }
+    
+    function resetRotation() {
+        stopRotation();
+        generate();
+    }
+    
+    function rotateManually() {
+        stopRotation();
+        rotateOneDegree();
+    }
+    
+    function generate() {
+        // A point
+        let aXInputValue = document.getElementById('aX-input').value * gridSize;
+        let aYInputValue = -document.getElementById('aY-input').value * gridSize;
+        
+        // B point
+        let bXInputValue = document.getElementById('bX-input').value * gridSize;
+        let bYInputValue = -document.getElementById('bY-input').value * gridSize;
+        
+        // C point
+        let cXInputValue = document.getElementById('cX-input').value * gridSize;
+        let cYInputValue = -document.getElementById('cY-input').value * gridSize;
+        
+        // D point
+        let dXInputValue = document.getElementById('dX-input').value * gridSize;
+        let dYInputValue = -document.getElementById('dY-input').value * gridSize;
+        
+        let checkResult = isSquare(aXInputValue, aYInputValue, bXInputValue, bYInputValue,
+            cXInputValue, cYInputValue, dXInputValue, dYInputValue);
+        
+        if (checkResult) {
+            aX = aXInputValue;
+            aY = aYInputValue;
+            bX = bXInputValue;
+            bY = bYInputValue;
+            cX = cXInputValue;
+            cY = cYInputValue;
+            dX = dXInputValue;
+            dY = dYInputValue;
+            drawLines();
+        } else {
+            alert('Points must form a square.\nClick \'Default Points\' button to fill inputs with default data.');
+        }
+    }
+    
+    function isSquare(x1, y1, x2, y2, x3, y3, x4, y4) {
+        let length1 = getSquaredLength(x1, y1, x2, y2);
+        let length2 = getSquaredLength(x1, y1, x3, y3);
+        let length3 = getSquaredLength(x1, y1, x4, y4);
+     
+        if (length1 === 0 || length2 === 0 || length3 === 0) {
+            return false;
+        }
+        
+        if (length1 === length2 && 2 * length1 === length3
+            && 2 * getSquaredLength(x2, y2, x4, y4) === getSquaredLength(x2, y2, x3, y3)) {
+            return true;
+        }
+     
+        if (length2 === length3 && 2 * length2 === length1
+            && 2 * getSquaredLength(x3, y3, x2, y2) === getSquaredLength(x3, y3, x4, y4)) {
+            return true;
+        }
+        
+        return length1 === length3 && 2 * length1 === length2 
+            && 2 * getSquaredLength(x2, y2, x3, y3) === getSquaredLength(x2, y2, x4, y4);
+    }
+    
+    function getSquaredLength(x1, y1, x2, y2) {
+        return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+    }
+    
+    function drawLines() {
+        const canvas = document.getElementById('quadrilateral-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Clear canvas
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        initCanvas();        
+        
+        // Draw AB
+        ctx.beginPath();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = redColor;
+        ctx.moveTo(aX, aY);
+        ctx.lineTo(bX, bY);
+        ctx.stroke();
+        
+        // Draw BC
+        ctx.beginPath();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = redColor;
+        ctx.moveTo(bX, bY);
+        ctx.lineTo(cX, cY);
+        ctx.stroke();
+        
+        // Draw CD
+        ctx.beginPath();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = redColor;
+        ctx.moveTo(cX, cY);
+        ctx.lineTo(dX, dY);
+        ctx.stroke();
+        
+        // Draw DA
+        ctx.beginPath();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = redColor;
+        ctx.moveTo(dX, dY);
+        ctx.lineTo(aX, aY);
+        ctx.stroke();
+    }
+    
+    function initCanvas() {
+        // Canvas
+        const canvas = document.getElementById('quadrilateral-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        
+        const xLinesCount = Math.floor(canvasHeight/gridSize);
+        const yLinesCount = Math.floor(canvasWidth/gridSize);
+        
+        // Draw horizontal lines
+        for (let i = 0; i < xLinesCount + 1; ++i) {
+            ctx.beginPath();
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = i === xAxisLineStart ? blueColor : grayColor;
+            ctx.moveTo(0, gridSize * i);
+            ctx.lineTo(canvasWidth, gridSize * i);
+            ctx.stroke();
+        }
+        
+        // Draw vertical lines
+        for (let j = 0; j < yLinesCount + 1; ++j) {
+            ctx.beginPath();
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = j === yAxisLineStart ? blueColor : grayColor;
+            ctx.moveTo(gridSize * j, 0);
+            ctx.lineTo(gridSize * j, canvasHeight);
+            ctx.stroke();
+        }
+        
+        // Set new axis (y axis is negative)
+        ctx.translate(yAxisLineStart * gridSize, xAxisLineStart * gridSize);
+        
+        // Tick marks along the axis
+        for (let i = 1; i < (yLinesCount - yAxisLineStart); ++i) {
+            ctx.beginPath();
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = blueColor;
+            ctx.moveTo(gridSize * i + 0.5, -3);
+            ctx.lineTo(gridSize * i + 0.5, 3);
+            ctx.stroke();
+        }
+        for (let i = 1; i < yAxisLineStart; ++i) {
+            ctx.beginPath();
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = blueColor;
+            ctx.moveTo(-gridSize * i + 0.5, -3);
+            ctx.lineTo(-gridSize * i + 0.5, 3);
+            ctx.stroke();
+        }
+        for (let i = 1; i < (xLinesCount - xAxisLineStart); ++i) {
+            ctx.beginPath();
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = blueColor;
+            ctx.moveTo(-3, gridSize * i + 0.5);
+            ctx.lineTo(3, gridSize * i + 0.5);
+            ctx.stroke();
+        }
+        for (let i = 1; i < xAxisLineStart; ++i) {
+            ctx.beginPath();
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = blueColor;
+            ctx.moveTo(-3, -gridSize * i + 0.5);
+            ctx.lineTo(3, -gridSize * i + 0.5);
+            ctx.stroke();
+        }
+    }
+    
+    function rotate() {
+        console.log('Rotating..');
+        if (!intervalID) {
+            intervalID = setInterval(rotateOneDegree, 25);    
+        }
+    }
+    
+    function rotateOneDegree() {
+        console.log('Rotating one degree..');
+        
+        let coordinates = [
+            [aX, aY],
+            [bX, bY],
+            [cX, cY],
+            [dX, dY]
+        ];
+        
+        let angles = [
+            [Math.cos(Math.PI / 180), Math.sin(Math.PI / 180)],
+            [-Math.sin(Math.PI / 180), Math.cos(Math.PI / 180)]
+        ];
+        
+        let rotatedCoordinates = multiplyMatrices(coordinates, angles);
+        
+        aX = rotatedCoordinates[0][0];
+        aY = rotatedCoordinates[0][1];
+        bX = rotatedCoordinates[1][0];
+        bY = rotatedCoordinates[1][1];
+        cX = rotatedCoordinates[2][0];
+        cY = rotatedCoordinates[2][1];
+        dX = rotatedCoordinates[3][0];
+        dY = rotatedCoordinates[3][1];
+        
+        drawLines(aX, aY, bX, bY, cX, cY, dX, dY);
+    }
+    
+    function multiplyMatrices(a, b) {
+        let aNumRows = a.length;
+        let aNumCols = a[0].length;
+        let bNumCols = b[0].length;
+        let m = new Array(aNumRows);
+        for (let r = 0; r < aNumRows; ++r) {
+            m[r] = new Array(bNumCols);
+            for (let c = 0; c < bNumCols; ++c) {
+                m[r][c] = 0;
+                for (let i = 0; i < aNumCols; ++i) {
+                    m[r][c] += a[r][i] * b[i][c];
+                }
+            }
+        }
+        return m;
+    }
+</script>
