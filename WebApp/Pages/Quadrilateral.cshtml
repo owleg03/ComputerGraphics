@@ -156,19 +156,19 @@
     
     function generate() {
         // A point
-        let aXInputValue = document.getElementById('aX-input').value * gridSize;
+        let aXInputValue = +document.getElementById('aX-input').value * gridSize;
         let aYInputValue = -document.getElementById('aY-input').value * gridSize;
         
         // B point
-        let bXInputValue = document.getElementById('bX-input').value * gridSize;
+        let bXInputValue = +document.getElementById('bX-input').value * gridSize;
         let bYInputValue = -document.getElementById('bY-input').value * gridSize;
         
         // C point
-        let cXInputValue = document.getElementById('cX-input').value * gridSize;
+        let cXInputValue = +document.getElementById('cX-input').value * gridSize;
         let cYInputValue = -document.getElementById('cY-input').value * gridSize;
         
         // D point
-        let dXInputValue = document.getElementById('dX-input').value * gridSize;
+        let dXInputValue = +document.getElementById('dX-input').value * gridSize;
         let dYInputValue = -document.getElementById('dY-input').value * gridSize;
         
         let checkResult = isSquare(aXInputValue, aYInputValue, bXInputValue, bYInputValue,
@@ -230,32 +230,32 @@
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.strokeStyle = redColor;
-        ctx.moveTo(aX, aY - verticalOffset);
-        ctx.lineTo(bX, bY - verticalOffset);
+        ctx.moveTo(aX, aY);
+        ctx.lineTo(bX, bY);
         ctx.stroke();
         
         // Draw BC
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.strokeStyle = redColor;
-        ctx.moveTo(bX, bY - verticalOffset);
-        ctx.lineTo(cX, cY - verticalOffset);
+        ctx.moveTo(bX, bY);
+        ctx.lineTo(cX, cY);
         ctx.stroke();
         
         // Draw CD
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.strokeStyle = redColor;
-        ctx.moveTo(cX, cY - verticalOffset);
-        ctx.lineTo(dX, dY - verticalOffset);
+        ctx.moveTo(cX, cY);
+        ctx.lineTo(dX, dY);
         ctx.stroke();
         
         // Draw DA
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.strokeStyle = redColor;
-        ctx.moveTo(dX, dY - verticalOffset);
-        ctx.lineTo(aX, aY - verticalOffset);
+        ctx.moveTo(dX, dY);
+        ctx.lineTo(aX, aY);
         ctx.stroke();
         
         verticalOffset += 0.5;
@@ -340,28 +340,69 @@
     function rotateOneDegree() {
         console.log('Rotating one degree..');
         
-        let coordinates = [
-            [aX, aY],
-            [bX, bY],
-            [cX, cY],
-            [dX, dY]
+        let centerX = (aX + cX) / 2;
+        let centerY = (aY + cY) / 2;
+        
+        let aCoordinates = [
+            [aX, aY, 1]
         ];
+        
+        let bCoordinates = [
+            [bX, bY, 1]
+        ]
+        
+        let cCoordinates = [
+            [cX, cY, 1]
+        ]
+        
+        let dCoordinates = [
+            [dX, dY, 1]
+        ]
+        
+        let move1 = [
+            [1, 0, 0],
+            [0, 1, 0],
+            [-centerX, -centerY,  1]
+        ];
+        
+        let move2 = [
+            [1, 0, 0],
+            [0, 1, 0],
+            [centerX, centerY, 1]
+        ]
         
         let angles = [
-            [Math.cos(oneDegreeInRadians), -Math.sin(oneDegreeInRadians)],
-            [Math.sin(oneDegreeInRadians), Math.cos(oneDegreeInRadians)]
+            [Math.cos(oneDegreeInRadians), -Math.sin(oneDegreeInRadians), 0],
+            [Math.sin(oneDegreeInRadians), Math.cos(oneDegreeInRadians), 0],
+            [0, 0, 1]
         ];
         
-        let rotatedCoordinates = multiplyMatrices(coordinates, angles);
+        // Move1
+        aCoordinates = multiplyMatrices(aCoordinates, move1);
+        bCoordinates = multiplyMatrices(bCoordinates, move1);
+        cCoordinates = multiplyMatrices(cCoordinates, move1);
+        dCoordinates = multiplyMatrices(dCoordinates, move1);
         
-        aX = rotatedCoordinates[0][0];
-        aY = rotatedCoordinates[0][1];
-        bX = rotatedCoordinates[1][0];
-        bY = rotatedCoordinates[1][1];
-        cX = rotatedCoordinates[2][0];
-        cY = rotatedCoordinates[2][1];
-        dX = rotatedCoordinates[3][0];
-        dY = rotatedCoordinates[3][1];
+        // Rotate
+        aCoordinates = multiplyMatrices(aCoordinates, angles);
+        bCoordinates = multiplyMatrices(bCoordinates, angles);
+        cCoordinates = multiplyMatrices(cCoordinates, angles);
+        dCoordinates = multiplyMatrices(dCoordinates, angles);
+        
+        // Move1
+        aCoordinates = multiplyMatrices(aCoordinates, move2);
+        bCoordinates = multiplyMatrices(bCoordinates, move2);
+        cCoordinates = multiplyMatrices(cCoordinates, move2);
+        dCoordinates = multiplyMatrices(dCoordinates, move2);
+        
+        aX = aCoordinates[0][0];
+        aY = aCoordinates[0][1] - 0.2;
+        bX = bCoordinates[0][0];
+        bY = bCoordinates[0][1] - 0.2;
+        cX = cCoordinates[0][0];
+        cY = cCoordinates[0][1] - 0.2;
+        dX = dCoordinates[0][0];
+        dY = dCoordinates[0][1] - 0.2;
         
         drawLines();
     }
