@@ -97,7 +97,10 @@
     // Coordinates
     let aX, aY, bX, bY, cX, cY, dX, dY;
     
+    // Movement
     let intervalID = false;
+    let verticalOffset = 0.1;
+    const oneDegreeInRadians = Math.PI / 180;
     
     window.onload = function() {
         load();
@@ -170,7 +173,7 @@
         
         let checkResult = isSquare(aXInputValue, aYInputValue, bXInputValue, bYInputValue,
             cXInputValue, cYInputValue, dXInputValue, dYInputValue);
-        
+       
         if (checkResult) {
             aX = aXInputValue;
             aY = aYInputValue;
@@ -227,33 +230,35 @@
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.strokeStyle = redColor;
-        ctx.moveTo(aX, aY);
-        ctx.lineTo(bX, bY);
+        ctx.moveTo(aX, aY - verticalOffset);
+        ctx.lineTo(bX, bY - verticalOffset);
         ctx.stroke();
         
         // Draw BC
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.strokeStyle = redColor;
-        ctx.moveTo(bX, bY);
-        ctx.lineTo(cX, cY);
+        ctx.moveTo(bX, bY - verticalOffset);
+        ctx.lineTo(cX, cY - verticalOffset);
         ctx.stroke();
         
         // Draw CD
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.strokeStyle = redColor;
-        ctx.moveTo(cX, cY);
-        ctx.lineTo(dX, dY);
+        ctx.moveTo(cX, cY - verticalOffset);
+        ctx.lineTo(dX, dY - verticalOffset);
         ctx.stroke();
         
         // Draw DA
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.strokeStyle = redColor;
-        ctx.moveTo(dX, dY);
-        ctx.lineTo(aX, aY);
+        ctx.moveTo(dX, dY - verticalOffset);
+        ctx.lineTo(aX, aY - verticalOffset);
         ctx.stroke();
+        
+        verticalOffset += 0.5;
     }
     
     function initCanvas() {
@@ -343,8 +348,8 @@
         ];
         
         let angles = [
-            [Math.cos(Math.PI / 180), Math.sin(Math.PI / 180)],
-            [-Math.sin(Math.PI / 180), Math.cos(Math.PI / 180)]
+            [Math.cos(oneDegreeInRadians), -Math.sin(oneDegreeInRadians)],
+            [Math.sin(oneDegreeInRadians), Math.cos(oneDegreeInRadians)]
         ];
         
         let rotatedCoordinates = multiplyMatrices(coordinates, angles);
@@ -358,7 +363,7 @@
         dX = rotatedCoordinates[3][0];
         dY = rotatedCoordinates[3][1];
         
-        drawLines(aX, aY, bX, bY, cX, cY, dX, dY);
+        drawLines();
     }
     
     function multiplyMatrices(a, b) {
