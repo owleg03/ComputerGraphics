@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace WebApp.Pages;
 
+[BindProperties]
 public class ColorSchemes : PageModel
 {
     // Statics
@@ -14,6 +15,15 @@ public class ColorSchemes : PageModel
     private static string? _imageFileAbsolutePath;
     private static string? _imageFileRelativePath;
 
+    public static byte[]? ImageBytes;
+    public static int CurrentC;
+    public static int CurrentM;
+    public static int CurrentY;
+    public static int CurrentK;
+    public static int CurrentH;
+    public static int CurrentS;
+    public static int CurrentL;
+
     // Const values
     private const string WhiteColor = "#FFFFFF";
     private const string DefaultImageName = "logo.png";
@@ -21,33 +31,41 @@ public class ColorSchemes : PageModel
     private const string DefaultImageAbsoluteFilePath = "C:/Users/Oleg/Desktop/KG/ComputerGraphics/WebApp/wwwroot/images/logo.png";
     private const string ImagesFolderRelativePath = "/images/";
     private const string ImagesFolderAbsolutePath = "C:/Users/Oleg/Desktop/KG/ComputerGraphics/WebApp/wwwroot/images";
+    private const double EqualityPrecision = 0.001;
     
     public ColorSchemes()
     {
-        ViewModel = new ColorSchemesViewModel();
+        ImageViewModel = new ColorSchemesImageViewModel();
+        CmykViewModel = new ColorSchemesCmykViewModel();
+        HslViewModel = new ColorSchemesHslViewModel();
     }
     
-    public class ColorSchemesViewModel
+    public class ColorSchemesImageViewModel
     {
         // Image
         public IFormFile? ImageFile { get; set; }
         public string? ImageFileRelativePath { get; set; }
-        public byte[]? ImageBytes { get; set; }
         public int GrayColorLightness { get; set; }
         public int ImageFromX { get; set; }
         public int ImageFromY { get; set; }
         public int ImageToX { get; set; }
         public int ImageToY { get; set; }
-        
-        // Colors
-        public string Cmyk { get; set; } = string.Empty;
-        public string Hsl { get; set; } = string.Empty;
+    }
+
+    public class ColorSchemesCmykViewModel
+    {
+        public string CmykHex { get; set; } = string.Empty;
         
         // CMYK color components
         public int C { get; set; }
         public int M { get; set; }
         public int Y { get; set; }
         public int K { get; set; }
+    }
+    
+    public class ColorSchemesHslViewModel
+    {
+        public string HslHex { get; set; } = string.Empty;
         
         // HSL color components
         public int H { get; set; }
@@ -55,25 +73,26 @@ public class ColorSchemes : PageModel
         public int L { get; set; }
     }
 
-    [BindProperty]
-    public ColorSchemesViewModel ViewModel { get; set; }
+    public ColorSchemesImageViewModel ImageViewModel { get; set; }
+    public ColorSchemesCmykViewModel CmykViewModel { get; set; }
+    public ColorSchemesHslViewModel HslViewModel { get; set; }
     
     public void OnGet()
     {
         _imageFileRelativePath = DefaultImageRelativeFilePath;
-        ViewModel.ImageFileRelativePath = _imageFileRelativePath;
+        ImageViewModel.ImageFileRelativePath = _imageFileRelativePath;
         var imageBitmap = new Bitmap(DefaultImageAbsoluteFilePath);
-        ViewModel.ImageBytes = BitmapToByteArray(imageBitmap);
-        ViewModel.ImageToX = imageBitmap.Width;
-        ViewModel.ImageToY = imageBitmap.Height;
+        ImageBytes = BitmapToByteArray(imageBitmap);
+        ImageViewModel.ImageToX = imageBitmap.Width;
+        ImageViewModel.ImageToY = imageBitmap.Height;
         
         // White as a default color
-        ViewModel.Cmyk = WhiteColor;
-        ViewModel.Hsl = WhiteColor;
-        ViewModel.L = 100;
+        CmykViewModel.CmykHex = WhiteColor;
+        HslViewModel.HslHex = WhiteColor;
+        HslViewModel.L = 100;
     }
 
-    public async Task<IActionResult> OnPost()
+    public async Task<IActionResult> OnPostImage()
     {
         if (!ModelState.IsValid)
         {
@@ -81,16 +100,16 @@ public class ColorSchemes : PageModel
         }
 
         // If user set new image file
-        if (ViewModel.ImageFile != null && ViewModel.ImageFile.FileName != _imageFileFullName)
+        if (ImageViewModel.ImageFile != null && ImageViewModel.ImageFile.FileName != _imageFileFullName)
         {
             // Save user image
             _imageFileGuid = Guid.NewGuid() + "_";
-            _imageFileName = ViewModel.ImageFile.FileName;
+            _imageFileName = ImageViewModel.ImageFile.FileName;
             _imageFileFullName = _imageFileGuid + _imageFileName;
             _imageFileRelativePath = Path.Combine(ImagesFolderRelativePath, _imageFileFullName);
             _imageFileAbsolutePath = Path.Combine(ImagesFolderAbsolutePath, _imageFileFullName);
             await using var fileStreamInitial = new FileStream(_imageFileAbsolutePath, FileMode.Create);
-            await ViewModel.ImageFile.CopyToAsync(fileStreamInitial);
+            await ImageViewModel.ImageFile.CopyToAsync(fileStreamInitial);
             fileStreamInitial.Close();
         }
         
@@ -106,18 +125,18 @@ public class ColorSchemes : PageModel
         var imageBitmap = new Bitmap(_imageFileAbsolutePath);
         
         // Starting coordinates
-        int fromX = ViewModel.ImageFromX;
+        int fromX = ImageViewModel.ImageFromX;
         fromX = fromX < 0 ? 0 : fromX;
         fromX = fromX >= imageBitmap.Width ? imageBitmap.Width - 1 : fromX;
-        int fromY = ViewModel.ImageFromY;
+        int fromY = ImageViewModel.ImageFromY;
         fromY = fromY < 0 ? 0 : fromY;
         fromY = fromY >= imageBitmap.Height ? imageBitmap.Height - 1 : fromY;
         
         // Ending coordinates
-        int toX = ViewModel.ImageToX;
+        int toX = ImageViewModel.ImageToX;
         toX = toX < 0 ? 0 : toX;
         toX = toX > imageBitmap.Width ? imageBitmap.Width : toX;
-        int toY = ViewModel.ImageToY;
+        int toY = ImageViewModel.ImageToY;
         toY = toY < 0 ? 0 : toY;
         toY = toY > imageBitmap.Height ? imageBitmap.Height : toY;
 
@@ -129,17 +148,17 @@ public class ColorSchemes : PageModel
                 var pixel = imageBitmap.GetPixel(i, j);
                 
                 // Red component
-                int r = pixel.R + ViewModel.GrayColorLightness;
+                int r = pixel.R + ImageViewModel.GrayColorLightness;
                 r = r < 0 ? 0 : r;
                 r = r > 255 ? 255 : r;
                 
                 // Green component
-                int g = pixel.G + ViewModel.GrayColorLightness;
+                int g = pixel.G + ImageViewModel.GrayColorLightness;
                 g = g < 0 ? 0 : g;
                 g = g > 255 ? 255 : g;
                 
                 // Blue component
-                int b = pixel.B + ViewModel.GrayColorLightness;
+                int b = pixel.B + ImageViewModel.GrayColorLightness;
                 b = b < 0 ? 0 : b;
                 b = b > 255 ? 255 : b;
 
@@ -157,15 +176,47 @@ public class ColorSchemes : PageModel
         imageBitmap.Save(fileStreamUpdated, ImageFormat.Png);
         fileStreamUpdated.Close();
         
-        ViewModel.ImageFileRelativePath = _imageFileRelativePath;
-        ViewModel.ImageBytes = BitmapToByteArray(imageBitmap);
+        ImageViewModel.ImageFileRelativePath = _imageFileRelativePath;
+        ImageBytes = BitmapToByteArray(imageBitmap);
 
-        // CMYK
-        ViewModel.Cmyk = GetHexFromCmyk(ViewModel.C, ViewModel.M, ViewModel.Y, ViewModel.K);
+        return Page();
+    }
+
+    public IActionResult OnPostCmyk()
+    {
+        GetRgbFromCmyk(CmykViewModel.C, CmykViewModel.M, CmykViewModel.Y, CmykViewModel.K, out int r, out int g, out int b);
+        CmykViewModel.CmykHex = GetHexFromRgb(r, g, b);
+        GetHslFromRgb(r, g, b, out int h, out int s, out int l);
+        CurrentC = CmykViewModel.C;
+        CurrentM = CmykViewModel.M;
+        CurrentY = CmykViewModel.Y;
+        CurrentK = CmykViewModel.K;
+        CurrentH = h;
+        CurrentS = s;
+        CurrentL = l;
         
-        // HSL
-        ViewModel.Hsl = GetHexFromHsl(ViewModel.H, ViewModel.S, ViewModel.L);
+        // Hex check
+        GetRgbFromHsl(h, s, l, out r, out g, out b);
+        HslViewModel.HslHex = GetHexFromRgb(r, g, b);
+        return Page();
+    }
 
+    public IActionResult OnPostHsl()
+    {
+        GetRgbFromHsl(HslViewModel.H, HslViewModel.S, HslViewModel.L, out int r, out int g, out int b);
+        HslViewModel.HslHex = GetHexFromRgb(r, g, b);
+        GetCmykFromRgb(r, g, b, out int c, out int m, out int y, out int k);
+        CurrentH = HslViewModel.H;
+        CurrentS = HslViewModel.S;
+        CurrentL = HslViewModel.L;
+        CurrentC = c;
+        CurrentM = m;
+        CurrentY = y;
+        CurrentK = k;
+        
+        // Hex check
+        GetRgbFromCmyk(c, m, y, k, out r, out g, out b);
+        CmykViewModel.CmykHex = GetHexFromRgb(r, g, b);
         return Page();
     }
     
@@ -174,7 +225,66 @@ public class ColorSchemes : PageModel
         return (byte[])new ImageConverter().ConvertTo(bitmapImage, typeof(byte[]))!;
     }
     
-    private static string GetHexFromCmyk(int c, int m, int y, int k)
+    private static void GetCmykFromRgb(int r, int g, int b, out int c, out int m, out int y, out int k)
+    {
+        double rTemp = r / 255.0;
+        double gTemp = g / 255.0;
+        double bTemp = b / 255.0;
+        
+        // K component
+        double kTemp = 1 - Math.Max(rTemp, Math.Max(gTemp, bTemp));
+        k = (int)Math.Ceiling(kTemp * 100);
+        
+        // C component
+        double cTemp = (1 - rTemp - kTemp) / (1 - kTemp);
+        c = (int)Math.Ceiling(cTemp * 100);
+        
+        // M component
+        double mTemp = (1 - gTemp - kTemp) / (1 - kTemp);
+        m = (int)Math.Ceiling(mTemp * 100);
+        
+        // Y component
+        double yTemp = (1 - bTemp - kTemp) / (1 - kTemp);
+        y = (int)Math.Ceiling(yTemp * 100);
+    }
+    
+    private static void GetHslFromRgb(int r, int g, int b, out int h, out int s, out int l)
+    {
+        double rTemp = r / 255.0;
+        double gTemp = g / 255.0;
+        double bTemp = b / 255.0;
+
+        double cMax = Math.Max(rTemp, Math.Max(gTemp, bTemp));
+        double cMin = Math.Min(rTemp, Math.Min(gTemp, bTemp));
+        double delta = cMax - cMin;
+
+        // H component
+        if (delta == 0)
+        {
+            h = 0;
+        }
+        else if (Math.Abs(cMax - rTemp) < EqualityPrecision)
+        {
+            h = (int)Math.Ceiling(60 * ((gTemp - bTemp) / delta % 6));
+        }
+        else if (Math.Abs(cMax - gTemp) < EqualityPrecision)
+        {
+            h = (int)Math.Ceiling(60 * ((bTemp - rTemp) / delta + 2));
+        }
+        else
+        {
+            h = (int)Math.Ceiling(60 * ((rTemp - gTemp) / delta + 4));
+        }
+        
+        // L Component
+        double lTemp = (cMax + cMin) / 2;
+        l = (int)Math.Ceiling(lTemp * 100);
+        
+        // S component
+        s = delta == 0 ? 0 : (int)Math.Ceiling(delta / (1 - Math.Abs(2 * lTemp - 1)) * 100);
+    }
+    
+    private static void GetRgbFromCmyk(int c, int m, int y, int k, out int r, out int g, out int b)
     {
         double cTemp = c / 100.0;
         double mTemp = m / 100.0;
@@ -182,17 +292,14 @@ public class ColorSchemes : PageModel
         double kTemp = k / 100.0;
 
         // Converting to RGB
-        double r = 255 * (1 - cTemp) * (1 - kTemp);
-        double g = 255 * (1 - mTemp) * (1 - kTemp);
-        double b = 255 * (1 - yTemp) * (1 - kTemp);
-        
-        // Converting to hex
-        var color = Color.FromArgb((int)Math.Ceiling(r), (int)Math.Ceiling(g), (int)Math.Ceiling(b));
-        var hex = "#" + color.R.ToString("X2") + color.G.ToString("X2") + color.B.ToString("X2");
-        return hex;
+        double rTemp = 255 * (1 - cTemp) * (1 - kTemp);
+        double gTemp = 255 * (1 - mTemp) * (1 - kTemp);
+        double bTemp = 255 * (1 - yTemp) * (1 - kTemp);
+
+        (r, g, b) = ((int)Math.Ceiling(rTemp), (int)Math.Ceiling(gTemp), (int)Math.Ceiling(bTemp));
     }
 
-    private static string GetHexFromHsl(int h, int s, int l)
+    private static void GetRgbFromHsl(int h, int s, int l, out int r, out int g, out int b)
     {
         double sTemp = s / 100.0;
         double lTemp = l / 100.0;
@@ -202,35 +309,39 @@ public class ColorSchemes : PageModel
         var x = c * (1 - Math.Abs(h / 60.0 % 2 - 1));
         var m = lTemp - c / 2;
 
-        double r, g, b;
+        double rTemp, gTemp, bTemp;
         if (h < 60)
         {
-            (r, g, b) = (c, x, 0);
+            (rTemp, gTemp, bTemp) = (c, x, 0);
         }
         else if (h < 120)
         {
-            (r, g, b) = (x, c, 0);
+            (rTemp, gTemp, bTemp) = (x, c, 0);
         }
         else if (h < 180)
         {
-            (r, g, b) = (0, c, x);
+            (rTemp, gTemp, bTemp) = (0, c, x);
         }
         else if (h < 240)
         {
-            (r, g, b) = (0, x, c);
+            (rTemp, gTemp, bTemp) = (0, x, c);
         }
         else if (h < 300)
         {
-            (r, g, b) = (x, 0, c);
+            (rTemp, gTemp, bTemp) = (x, 0, c);
         }
         else
         {
-            (r, g, b) = (c, 0, x);
+            (rTemp, gTemp, bTemp) = (c, 0, x);
         }
-        (r, g, b) = ((r + m) * 255, (g + m) * 255, (b + m) * 255);
-        
-        // Converting to hex
-        var color = Color.FromArgb((int)Math.Ceiling(r), (int)Math.Ceiling(g), (int)Math.Ceiling(b));
+        (rTemp, gTemp, bTemp) = ((rTemp + m) * 255, (gTemp + m) * 255, (bTemp + m) * 255);
+
+        (r, g, b) = ((int)Math.Ceiling(rTemp), (int)Math.Ceiling(gTemp), (int)Math.Ceiling(bTemp));
+    }
+
+    private static string GetHexFromRgb(int r, int g, int b)
+    {
+        var color = Color.FromArgb(r, g, b);
         var hex = "#" + color.R.ToString("X2") + color.G.ToString("X2") + color.B.ToString("X2");
         return hex;
     }

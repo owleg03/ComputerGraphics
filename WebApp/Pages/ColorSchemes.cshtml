@@ -7,187 +7,232 @@
 <link rel="stylesheet" href="css/color-schemes.css" asp-append-version="true"/>
 
 <div class="row">
-    <form id="color-schemes-form" method="post" enctype="multipart/form-data">
-        <div class="row h-100">
-            <!-- CMYK column -->
-            <div class="col-sm-4">
+    <div class="row h-100 mt-5">
+        <!-- CMYK column -->
+        <div class="col-sm-4">
+            <form id="color-schemes-cmyk-form" asp-page-handler="Cmyk" method="post">
                 <div class="row align-content-center h-100">
                     <div class="d-flex flex-column">
                         <div class="mt-3">
-                            <label asp-for="ViewModel.Cmyk" class="ms-3"></label>
-                            <input value="@Model.ViewModel.Cmyk" type="color" readonly/>
+                            <label asp-for="CmykViewModel.CmykHex" class="mx-3">Cmyk</label>
+                            <input value="@Model.CmykViewModel.CmykHex" type="color" readonly/>
                         </div>
                         <div class="mt-3">
                             <span class="d-inline-block width-10 mx-2">c</span>
-                            <input id="c-input" asp-for="ViewModel.C" class="input-secondary width-50 mr-2" onchange="updateCRange()"/>
-                            <input id="c-range" asp-for="ViewModel.C" type="range" min="0" max="100" step="1" class="w-50" onchange="updateCInput()"/>
+                            <input id="c-input" asp-for="CmykViewModel.C" value="@ColorSchemes.CurrentC" class="input-secondary width-50 mr-2" onchange="updateCRange()"/>
+                            <input id="c-range" asp-for="CmykViewModel.C" value="@ColorSchemes.CurrentC" type="range" min="0" max="100" step="1" class="w-50" onchange="updateCInput()"/>
                         </div>
                         <div class="mt-3">
                             <span class="d-inline-block width-10 mx-2">m</span>
-                            <input id="m-input" asp-for="ViewModel.M" class="input-secondary width-50 mr-2" onchange="updateMRange()"/>
-                            <input id="m-range" asp-for="ViewModel.M" type="range" min="0" max="100" step="1" class="w-50" onchange="updateMInput()"/>
+                            <input id="m-input" asp-for="CmykViewModel.M" value="@ColorSchemes.CurrentM" class="input-secondary width-50 mr-2" onchange="updateMRange()"/>
+                            <input id="m-range" asp-for="CmykViewModel.M" value="@ColorSchemes.CurrentM" type="range" min="0" max="100" step="1" class="w-50" onchange="updateMInput()"/>
                         </div>
                         <div class="mt-3">
                             <span class="d-inline-block width-10 mx-2">y</span>
-                            <input id="y-input" asp-for="ViewModel.Y" class="input-secondary width-50 mr-2" onchange="updateYRange()"/>
-                            <input id="y-range" asp-for="ViewModel.Y" type="range" min="0" max="100" step="1" class="w-50" onchange="updateYInput()"/>
+                            <input id="y-input" asp-for="CmykViewModel.Y" value="@ColorSchemes.CurrentY" class="input-secondary width-50 mr-2" onchange="updateYRange()"/>
+                            <input id="y-range" asp-for="CmykViewModel.Y" value="@ColorSchemes.CurrentY" type="range" min="0" max="100" step="1" class="w-50" onchange="updateYInput()"/>
                         </div>
                         <div class="mt-3">
                             <span class="d-inline-block width-10 mx-2">k</span>
-                            <input id="k-input" asp-for="ViewModel.K" class="input-secondary width-50 mr-2" onchange="updateKRange()"/>
-                            <input id="k-range" asp-for="ViewModel.K" type="range" min="0" max="100" step="1" class="w-50" onchange="updateKInput()"/>
+                            <input id="k-input" asp-for="CmykViewModel.K" value="@ColorSchemes.CurrentK" class="input-secondary width-50 mr-2" onchange="updateKRange()"/>
+                            <input id="k-range" asp-for="CmykViewModel.K" value="@ColorSchemes.CurrentK" type="range" min="0" max="100" step="1" class="w-50" onchange="updateKInput()"/>
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- Image column -->
-            <div class="col-sm-4">
+                <!-- Placeholder inputs -->
+                <input asp-for="ImageViewModel.ImageFile" type="file" readonly hidden/>
+                <input asp-for="ImageViewModel.ImageFileRelativePath" readonly hidden/>
+                <input asp-for="ImageViewModel.GrayColorLightness" readonly hidden/>
+                <input asp-for="ImageViewModel.ImageFromX" readonly hidden/>
+                <input asp-for="ImageViewModel.ImageFromY" readonly hidden/>
+                <input asp-for="ImageViewModel.ImageToX" readonly hidden/>
+                <input asp-for="ImageViewModel.ImageToY" readonly hidden/>
+                <input asp-for="HslViewModel.HslHex" readonly hidden/>
+                <input asp-for="HslViewModel.H" readonly hidden>
+                <input asp-for="HslViewModel.S" readonly hidden>
+                <input asp-for="HslViewModel.L" readonly hidden>
+            </form>
+        </div>
+        <!-- Image column -->
+        <div class="col-sm-4">
+            <form id="color-schemes-image-form" asp-page-handler="Image" method="post" enctype="multipart/form-data">
                 <div class="row align-content-center h-100">
                     <div class="d-flex flex-column">
                         <div class="mt-1">
-                            <input asp-for="ViewModel.ImageFile" type="file"/>
+                            <input asp-for="ImageViewModel.ImageFile" type="file"/>
                         </div>
                         <div class="mt-2">
-                            <img class="user-image" src="@Model.ViewModel.ImageFileRelativePath" alt="Image to edit"/>
+                            <img class="user-image" src="@Model.ImageViewModel.ImageFileRelativePath" alt="Image to edit"/>
                         </div>
                         <div class="mt-2 ms-3">
                             <span>Lightness by gray color:</span>
                         </div>
                         <div class="mt-2 ms-3">
-                            <input id="gray-input" asp-for="ViewModel.GrayColorLightness" class="input-secondary width-50 mr-2" onchange="updateGrayRange()"/>
-                            <input id="gray-range" asp-for="ViewModel.GrayColorLightness" type="range" min="-255" max="255" step="1" class="w-50" onchange="updateGrayInput()"/>
+                            <input id="gray-input" asp-for="ImageViewModel.GrayColorLightness" class="input-secondary width-50 mr-2" onchange="updateGrayRange()"/>
+                            <input id="gray-range" asp-for="ImageViewModel.GrayColorLightness" type="range" min="-255" max="255" step="1" class="w-50" onchange="updateGrayInput()"/>
                         </div>
                         <div class="mt-2 ms-3">
                             <span class="d-inline-flex width-30 me-3">From:</span>
-                            <input asp-for="ViewModel.ImageFromX" class="input-secondary width-50 mr-2"/>
+                            <input asp-for="ImageViewModel.ImageFromX" class="input-secondary width-50 mr-2"/>
                             <span>:</span>
-                            <input asp-for="ViewModel.ImageFromY" class="input-secondary width-50 mr-2"/>
+                            <input asp-for="ImageViewModel.ImageFromY" class="input-secondary width-50 mr-2"/>
                         </div>
                         <div class="mt-2 ms-3">
                             <span class="d-inline-flex width-30 me-3">To:</span>
-                            <input asp-for="ViewModel.ImageToX" class="input-secondary width-50 mr-2"/>
+                            <input asp-for="ImageViewModel.ImageToX" class="input-secondary width-50 mr-2"/>
                             <span>:</span>
-                            <input asp-for="ViewModel.ImageToY" class="input-secondary width-50 mr-2"/>
+                            <input asp-for="ImageViewModel.ImageToY" class="input-secondary width-50 mr-2"/>
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- HSL column -->
-            <div class="col-sm-4">
+                <!-- Placeholder inputs -->
+                <input asp-for="CmykViewModel.CmykHex" readonly hidden/>
+                <input asp-for="CmykViewModel.C" readonly hidden/>
+                <input asp-for="CmykViewModel.M" readonly hidden/>
+                <input asp-for="CmykViewModel.Y" readonly hidden/>
+                <input asp-for="CmykViewModel.K" readonly hidden/>
+                <input asp-for="HslViewModel.HslHex" readonly hidden/>
+                <input asp-for="HslViewModel.H" readonly hidden>
+                <input asp-for="HslViewModel.S" readonly hidden>
+                <input asp-for="HslViewModel.L" readonly hidden>
+            </form>
+        </div>
+        <!-- HSL column -->
+        <div class="col-sm-4">
+            <form id="color-schemes-hsl-form" asp-page-handler="Hsl" method="post">
                 <div class="row align-content-center h-100">
                     <div class="d-flex flex-column">
                         <div class="mt-3">
-                            <label asp-for="ViewModel.Hsl" class="ms-3"></label>
-                            <input value="@Model.ViewModel.Hsl" type="color" readonly/>
+                            <label asp-for="HslViewModel.HslHex" class="mx-3">Hsl</label>
+                            <input value="@Model.HslViewModel.HslHex" type="color" readonly/>
                         </div>
                         <div class="mt-3">
                             <span class="d-inline-block width-10 mx-2">h</span>
-                            <input id="h-input" asp-for="ViewModel.H" class="input-secondary width-50 mr-2" onchange="updateHRange()"/>
-                            <input id="h-range" asp-for="ViewModel.H" type="range" min="0" max="360" step="1" class="w-50" onchange="updateHInput()"/>
+                            <input id="h-input" asp-for="HslViewModel.H" value="@ColorSchemes.CurrentH" class="input-secondary width-50 mr-2" onchange="updateHRange()"/>
+                            <input id="h-range" asp-for="HslViewModel.H" value="@ColorSchemes.CurrentH" type="range" min="0" max="360" step="1" class="w-50" onchange="updateHInput()"/>
                         </div>
                         <div class="mt-3">
                             <span class="d-inline-block width-10 mx-2">s</span>
-                            <input id="s-input" asp-for="ViewModel.S" class="input-secondary width-50 mr-2" onchange="updateSRange()"/>
-                            <input id="s-range" asp-for="ViewModel.S" type="range" min="0" max="100" step="1" class="w-50" onchange="updateSInput()"/>
+                            <input id="s-input" asp-for="HslViewModel.S" value="@ColorSchemes.CurrentS" class="input-secondary width-50 mr-2" onchange="updateSRange()"/>
+                            <input id="s-range" asp-for="HslViewModel.S" value="@ColorSchemes.CurrentS" type="range" min="0" max="100" step="1" class="w-50" onchange="updateSInput()"/>
                         </div>
                         <div class="mt-3">
                             <span class="d-inline-block width-10 mx-2">l</span>
-                            <input id="l-input" asp-for="ViewModel.L" class="input-secondary width-50 mr-2" onchange="updateLRange()"/>
-                            <input id="l-range" asp-for="ViewModel.L" type="range" min="0" max="100" step="1" class="w-50" onchange="updateLInput()"/>
+                            <input id="l-input" asp-for="HslViewModel.L" value="@ColorSchemes.CurrentL" class="input-secondary width-50 mr-2" onchange="updateLRange()"/>
+                            <input id="l-range" asp-for="HslViewModel.L" value="@ColorSchemes.CurrentL" type="range" min="0" max="100" step="1" class="w-50" onchange="updateLInput()"/>
                         </div>
                     </div>
                 </div>
-            </div>
+                <!-- Placeholder inputs -->
+                <input asp-for="CmykViewModel.CmykHex" readonly hidden/>
+                <input asp-for="CmykViewModel.C" readonly hidden/>
+                <input asp-for="CmykViewModel.M" readonly hidden/>
+                <input asp-for="CmykViewModel.Y" readonly hidden/>
+                <input asp-for="CmykViewModel.K" readonly hidden/>
+                <input asp-for="ImageViewModel.ImageFile" type="file" readonly hidden/>
+                <input asp-for="ImageViewModel.ImageFileRelativePath" readonly hidden/>
+                <input asp-for="ImageViewModel.GrayColorLightness" readonly hidden/>
+                <input asp-for="ImageViewModel.ImageFromX" readonly hidden/>
+                <input asp-for="ImageViewModel.ImageFromY" readonly hidden/>
+                <input asp-for="ImageViewModel.ImageToX" readonly hidden/>
+                <input asp-for="ImageViewModel.ImageToY" readonly hidden/>
+            </form>
         </div>
-        <div class="row mt-2">
-            <div asp-validation-summary="All" class="text-danger"></div>
+    </div>
+    <div class="row mt-2">
+        <div asp-validation-summary="All" class="text-danger"></div>
+    </div>
+    <div class="row mt-1">
+        <div class="d-flex justify-content-end">
+            <button type="submit" class="btn button-primary mx-1" onclick="submitImageForm()">Generate</button>
+            <a href="https://en.wikipedia.org/wiki/Color_scheme" target="_blank" 
+               class="btn button-secondary mx-1">Theory</a>
+            <a href="#" class="btn button-secondary mx-1" onclick="copySite()">Share</a>
+            <a href="@($"data:image/png;base64,{Convert.ToBase64String(ColorSchemes.ImageBytes!)}")" 
+               class="btn button-primary mx-1" download>Save</a>
         </div>
-        <div class="row mt-1">
-            <div class="d-flex justify-content-end">
-                <button type="submit" class="btn button-primary mx-1">Generate</button>
-                <a href="https://en.wikipedia.org/wiki/Color_scheme" target="_blank" 
-                   class="btn button-secondary mx-1">Theory</a>
-                <a href="#" class="btn button-secondary mx-1" onclick="copySite()">Share</a>
-                <a href="@($"data:image/png;base64,{Convert.ToBase64String(Model.ViewModel.ImageBytes)}")" 
-                   class="btn button-primary mx-1" download>Save</a>
-            </div>
-        </div>
-    </form>
+    </div>
 </div>
 
 <script>
     function copySite() {
         navigator.clipboard.writeText('https://localhost:44371/ColorSchemes');    
     }
-    function submitForm() {
-        document.getElementById('color-schemes-form').submit();
+    function submitImageForm() {
+        document.getElementById('color-schemes-image-form').submit();
+    }
+    function submitCmykForm() {
+        document.getElementById('color-schemes-cmyk-form').submit();
+    }
+    function submitHslForm() {
+        document.getElementById('color-schemes-hsl-form').submit();
     }
     
     // For input updates
     function updateCInput() {
         document.getElementById('c-input').value = document.getElementById('c-range').value;
-        submitForm();
+        submitCmykForm();
     }
     function updateMInput() {
         document.getElementById('m-input').value = document.getElementById('m-range').value;
-        submitForm();
+        submitCmykForm();
     }
     function updateYInput() {
         document.getElementById('y-input').value = document.getElementById('y-range').value;
-        submitForm();
+        submitCmykForm();
     }
     function updateKInput() {
         document.getElementById('k-input').value = document.getElementById('k-range').value;
-        submitForm();
+        submitCmykForm();
     }
     function updateHInput() {
         document.getElementById('h-input').value = document.getElementById('h-range').value;
-        submitForm();
+        submitHslForm();
     }
     function updateSInput() {
         document.getElementById('s-input').value = document.getElementById('s-range').value;
-        submitForm();
+        submitHslForm();
     }
     function updateLInput() {
         document.getElementById('l-input').value = document.getElementById('l-range').value;
-        submitForm();
+        submitHslForm();
     }
     function updateGrayInput() {
         document.getElementById('gray-input').value = document.getElementById('gray-range').value;
-        submitForm();
+        submitImageForm();
     }
     
     // For range updates
     function updateCRange() {
         document.getElementById('c-range').value = document.getElementById('c-input').value;
-        submitForm();
+        submitCmykForm();
     }
     function updateMRange() {
         document.getElementById('m-range').value = document.getElementById('m-input').value;
-        submitForm();
+        submitCmykForm();
     }
     function updateYRange() {
         document.getElementById('y-range').value = document.getElementById('y-input').value;
-        submitForm();
+        submitCmykForm();
     }
     function updateKRange() {
         document.getElementById('k-range').value = document.getElementById('k-input').value;
-        submitForm();
+        submitCmykForm();
     }
     function updateHRange() {
         document.getElementById('h-range').value = document.getElementById('h-input').value;
-        submitForm();
+        submitHslForm();
     }
     function updateSRange() {
         document.getElementById('s-range').value = document.getElementById('s-input').value;
-        submitForm();
+        submitHslForm();
     }
     function updateLRange() {
         document.getElementById('l-range').value = document.getElementById('l-input').value;
-        submitForm();
+        submitHslForm();
     }
     function updateGrayRange() {
         document.getElementById('gray-range').value = document.getElementById('gray-input').value;
-        submitForm();
+        submitImageForm();
     }
 </script>
